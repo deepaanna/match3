@@ -1,0 +1,170 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqxprelv0001"]
+
+[ext_resource type="Script" path="res://scenes/ui/pre_level_popup.gd" id="1_script"]
+
+[node name="PreLevelPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 120.0
+offset_right = 500.0
+offset_bottom = 820.0
+color = Color(0.12, 0.1, 0.18, 0.95)
+
+[node name="TitleLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 135.0
+offset_right = 500.0
+offset_bottom = 170.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="RegionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 170.0
+offset_right = 500.0
+offset_bottom = 195.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+modulate = Color(0.7, 0.8, 1, 1)
+
+[node name="FlavorLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 60.0
+offset_top = 200.0
+offset_right = 480.0
+offset_bottom = 240.0
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(0.6, 0.6, 0.6, 1)
+
+[node name="StarInfo" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 250.0
+offset_right = 500.0
+offset_bottom = 270.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 0.85, 0, 1)
+
+[node name="MovesLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 280.0
+offset_right = 500.0
+offset_bottom = 305.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="EnergyLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 310.0
+offset_right = 500.0
+offset_bottom = 330.0
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="TeamTitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 340.0
+offset_right = 500.0
+offset_bottom = 365.0
+theme_override_font_sizes/font_size = 18
+text = "Your Team"
+horizontal_alignment = 1
+
+[node name="LeaderMarker" type="Label" parent="."]
+layout_mode = 0
+offset_left = 70.0
+offset_top = 365.0
+offset_right = 190.0
+offset_bottom = 381.0
+theme_override_font_sizes/font_size = 10
+text = "LEADER"
+horizontal_alignment = 1
+modulate = Color(1, 0.85, 0, 1)
+
+[node name="TeamRow" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 70.0
+offset_top = 380.0
+offset_right = 470.0
+offset_bottom = 510.0
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="LeaderSkillLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 515.0
+offset_right = 500.0
+offset_bottom = 533.0
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 0.85, 0, 1)
+
+[node name="InstructionLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 535.0
+offset_right = 500.0
+offset_bottom = 571.0
+theme_override_font_sizes/font_size = 11
+text = "Match piece colors to charge your team.
+Tap a charged cryptid to use their ability!"
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(0.65, 0.65, 0.65, 1)
+
+[node name="StartButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 140.0
+offset_top = 580.0
+offset_right = 400.0
+offset_bottom = 635.0
+custom_minimum_size = Vector2(260, 55)
+theme_override_font_sizes/font_size = 22
+text = "Start Expedition"
+
+[node name="BackButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 200.0
+offset_top = 645.0
+offset_right = 340.0
+offset_bottom = 685.0
+custom_minimum_size = Vector2(140, 40)
+theme_override_font_sizes/font_size = 16
+text = "Back"

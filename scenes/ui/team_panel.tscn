@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqxteam00001"]
+
+[ext_resource type="Script" path="res://scenes/ui/team_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cqxteamp0001" path="res://scenes/ui/team_portrait.tscn" id="2_portrait"]
+
+[node name="TeamPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 540.0
+offset_bottom = 180.0
+script = ExtResource("1_script")
+
+[node name="Portrait0" parent="." instance=ExtResource("2_portrait")]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 0.0
+offset_right = 180.0
+offset_bottom = 180.0
+
+[node name="Portrait1" parent="." instance=ExtResource("2_portrait")]
+layout_mode = 0
+offset_left = 195.0
+offset_top = 0.0
+offset_right = 345.0
+offset_bottom = 180.0
+
+[node name="Portrait2" parent="." instance=ExtResource("2_portrait")]
+layout_mode = 0
+offset_left = 360.0
+offset_top = 0.0
+offset_right = 510.0
+offset_bottom = 180.0

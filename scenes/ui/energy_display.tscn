@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqxenrgy0001"]
+
+[ext_resource type="Script" path="res://scenes/ui/energy_display.gd" id="1_script"]
+
+[node name="EnergyDisplay" type="HBoxContainer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 30.0
+alignment = 1
+theme_override_constants/separation = 4
+script = ExtResource("1_script")
+
+[node name="Heart0" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="Heart1" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="Heart2" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="Heart3" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="Heart4" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="TimerLabel" type="Label" parent="."]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 0)
+theme_override_font_sizes/font_size = 12

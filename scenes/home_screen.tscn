@@ -1,0 +1,108 @@
+[gd_scene load_steps=4 format=3 uid="uid://cqxhome00001"]
+
+[ext_resource type="Script" path="res://scenes/home_screen.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cqxenrgy0001" path="res://scenes/ui/energy_display.tscn" id="2_energy"]
+[ext_resource type="PackedScene" uid="uid://cqxcurr00001" path="res://scenes/ui/currency_bar.tscn" id="3_currency"]
+
+[node name="HomeScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.08, 0.15, 1)
+
+[node name="EnergyDisplay" parent="." instance=ExtResource("2_energy")]
+layout_mode = 0
+offset_left = 170.0
+offset_top = 10.0
+offset_right = 370.0
+offset_bottom = 40.0
+
+[node name="CurrencyBar" parent="." instance=ExtResource("3_currency")]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 40.0
+offset_right = 540.0
+offset_bottom = 65.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -140.0
+offset_right = 150.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "CRYPTID
+CLASH"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Match pieces. Charge your team. Unleash abilities!"
+horizontal_alignment = 1
+modulate = Color(0.65, 0.65, 0.7, 1)
+
+[node name="PlayButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 60)
+theme_override_font_sizes/font_size = 28
+text = "PLAY"
+
+[node name="LevelLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Level 1"
+horizontal_alignment = 1
+
+[node name="NavBar" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 750.0
+offset_right = 510.0
+offset_bottom = 800.0
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="FieldGuideButton" type="Button" parent="NavBar"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 45)
+theme_override_font_sizes/font_size = 14
+text = "Field Guide"
+
+[node name="InvestigateButton" type="Button" parent="NavBar"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 45)
+theme_override_font_sizes/font_size = 14
+text = "Investigate"
+
+[node name="CamerasButton" type="Button" parent="NavBar"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(120, 45)
+theme_override_font_sizes/font_size = 14
+text = "Cameras"

@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqxcurr00001"]
+
+[ext_resource type="Script" path="res://scenes/ui/currency_bar.gd" id="1_script"]
+
+[node name="CurrencyBar" type="HBoxContainer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 540.0
+offset_bottom = 25.0
+alignment = 1
+theme_override_constants/separation = 20
+script = ExtResource("1_script")
+
+[node name="FragmentsLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fragments: 0"
+theme_override_font_sizes/font_size = 12
+
+[node name="CoinsLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Coins: 0"
+theme_override_font_sizes/font_size = 12
+
+[node name="ResearchLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Research: 0"
+theme_override_font_sizes/font_size = 12
