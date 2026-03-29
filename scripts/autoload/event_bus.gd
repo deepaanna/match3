@@ -73,6 +73,29 @@ signal iap_purchased(product_id: String)
 signal camera_placed(biome_id: String)
 signal camera_collected(biome_id: String)
 
+# --- Obstacle signals ---
+signal obstacle_damaged(col: int, row: int, remaining_hp: int)
+signal obstacle_cleared(col: int, row: int, obstacle_type: int)
+
+# --- Goal signals ---
+signal pieces_collected(piece_type: int, count: int)
+signal goal_progress_updated(goal_id: String, current: int, target: int)
+signal goal_completed(goal_id: String)
+signal all_goals_completed()
+signal mana_goal_charged()
+
+# --- Victory signals ---
+signal victory_detonation_requested(moves_left: int)
+signal victory_detonation_finished(bonus_score: int)
+
+# --- Screen shake signals ---
+signal screen_shake_requested(intensity: float)
+
+# --- Tutorial signals ---
+signal board_ready()
+signal tutorial_hint_show(hint_id: String, text: String, position: Vector2)
+signal tutorial_hint_dismiss()
+
 # --- Ability effect signals ---
 signal pieces_converted(positions: Array, new_type: int)
 signal row_cleared(row: int)

@@ -5,7 +5,9 @@
       "Bash(wc -l scenes/*.gd scenes/ui/*.gd scripts/board/*.gd scripts/data/*.gd scripts/systems/*.gd scripts/autoload/*.gd)",
       "Bash(xargs -0 wc -l)",
       "Bash(grep -l 'script = ' D:GameDevClaudeCryptid Clash/scenes/*.tscn D:GameDevClaudeCryptid Clash/scenes/ui/*.tscn)",
-      "Bash(find \"D:\\\\GameDev\\\\Claude\\\\Cryptid Clash\" -type f -name \"*.tscn\" -exec grep \"path=\"\"res://\" {} +)"
+      "Bash(find \"D:\\\\GameDev\\\\Claude\\\\Cryptid Clash\" -type f -name \"*.tscn\" -exec grep \"path=\"\"res://\" {} +)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"SHIELD\\\\|ObstacleType\\\\|obstacle\" 'D:\\\\GameDev\\\\Claude\\\\Cryptid Clash' --include=*.gd)"
     ]
   }
 }

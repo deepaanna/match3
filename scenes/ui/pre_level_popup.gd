@@ -22,7 +22,7 @@ var _team_buttons: Array[Button] = []
 
 
 func setup(level: int) -> void:
-	_level_data = LevelData.create_default(level)
+	_level_data = LevelData.get_level(level)
 
 	if not is_node_ready():
 		await ready
@@ -50,6 +50,11 @@ func _populate() -> void:
 		_level_data.star_1_score, _level_data.star_2_score, _level_data.star_3_score
 	]
 	_moves_label.text = "Moves: %d" % _level_data.max_moves
+
+	# Show goal description
+	var goal_text: String = _get_goal_description()
+	if goal_text != "":
+		_moves_label.text += "\n" + goal_text
 	_energy_label.text = "Energy Cost: 1 ♥ (You have: %d)" % PlayerData.energy
 	_energy_label.modulate = Color(1.0, 0.3, 0.3) if PlayerData.energy <= 0 else Color(0.7, 0.7, 0.7)
 
@@ -101,6 +106,38 @@ func _update_leader_skill() -> void:
 				_leader_skill_label.visible = true
 				return
 	_leader_skill_label.visible = false
+
+
+func _get_goal_description() -> String:
+	var params: Dictionary = _level_data.goal_params
+	match _level_data.goal_type:
+		LevelData.GoalType.SCORE:
+			return ""
+		LevelData.GoalType.COLLECT:
+			var type_name: String = PieceData.get_piece_name(params.get("type", 0))
+			return "Goal: Collect %d %s pieces" % [params.get("count", 15), type_name]
+		LevelData.GoalType.CLEAR_OBSTACLES:
+			var parts: Array[String] = []
+			if params.has("ice"):
+				parts.append("%d ice" % params["ice"])
+			if params.has("web"):
+				parts.append("%d webs" % params["web"])
+			return "Goal: Clear " + ", ".join(parts)
+		LevelData.GoalType.CHARGE_MANA:
+			return "Goal: Charge mana %d times" % params.get("charges", 5)
+		LevelData.GoalType.MIXED:
+			var parts: Array[String] = []
+			if params.has("count") and params.has("type"):
+				var type_name: String = PieceData.get_piece_name(params["type"])
+				parts.append("collect %d %s" % [params["count"], type_name])
+			if params.has("ice"):
+				parts.append("clear %d ice" % params["ice"])
+			if params.has("web"):
+				parts.append("clear %d webs" % params["web"])
+			if params.has("score"):
+				parts.append("score %d" % params["score"])
+			return "Goals: " + ", ".join(parts)
+	return ""
 
 
 func _open_team_selector(slot: int) -> void:

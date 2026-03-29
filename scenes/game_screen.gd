@@ -21,9 +21,20 @@ var _ability_system: Node = null
 var _leader_skill_system: Node = null
 var _team_panel: Control = null
 var _failure_popup: Control = null
+var _tutorial_manager: Node = null
+var _goal_labels: Dictionary = {}  # goal_id -> Label node
+var _goal_container: VBoxContainer = null
 
 const TEAM_PANEL_SCENE: PackedScene = preload("res://scenes/ui/team_panel.tscn")
 const GAME_OVER_POPUP_SCENE: PackedScene = preload("res://scenes/ui/game_over_popup.tscn")
+
+const GOAL_DISPLAY_NAMES: Dictionary = {
+	"collect": "Collect",
+	"ice": "Break Ice",
+	"web": "Clear Webs",
+	"mana": "Charge Mana",
+	"score": "Score",
+}
 
 
 func _ready() -> void:
@@ -45,6 +56,9 @@ func _ready() -> void:
 	EventBus.game_over.connect(_on_game_over)
 	EventBus.cascade_started.connect(_on_cascade_started)
 	EventBus.board_settled.connect(_on_board_settled)
+	EventBus.goal_progress_updated.connect(_on_goal_progress_updated)
+	EventBus.all_goals_completed.connect(_on_all_goals_completed)
+	EventBus.screen_shake_requested.connect(_on_screen_shake_requested)
 
 	pause_button.pressed.connect(func() -> void: EventBus.pause_pressed.emit())
 	$PauseOverlay/VBoxContainer/ResumeButton.pressed.connect(
@@ -61,8 +75,10 @@ func _ready() -> void:
 	_on_score_changed(GameManager.score)
 	_on_moves_changed(GameManager.moves_remaining)
 
-	# Setup star progress bar
+	# Setup star progress bar and goal display
 	_setup_star_progress()
+	_setup_goal_display()
+	_setup_tutorial()
 
 
 func _setup_systems() -> void:
@@ -97,6 +113,16 @@ func _setup_systems() -> void:
 	_team_panel.cryptid_tapped.connect(_on_cryptid_tapped)
 
 
+func _setup_tutorial() -> void:
+	var TutorialScript: GDScript = preload("res://scripts/systems/tutorial_manager.gd")
+	_tutorial_manager = TutorialScript.new()
+	_tutorial_manager.name = "TutorialManager"
+	add_child(_tutorial_manager)
+
+	var board: Node2D = $BoardContainer/Board
+	_tutorial_manager.setup(board, self)
+
+
 func _on_cryptid_tapped(cryptid_id: String) -> void:
 	if _ability_system:
 		_ability_system.try_activate_ability(cryptid_id)
@@ -105,7 +131,7 @@ func _on_cryptid_tapped(cryptid_id: String) -> void:
 func _setup_star_progress() -> void:
 	var level_data: LevelData = GameManager.current_level_data
 	if not level_data:
-		level_data = LevelData.create_default(GameManager.current_level)
+		level_data = LevelData.get_level(GameManager.current_level)
 
 	var bar_width: float = 520.0  # progress bar width (540 - 20 padding)
 	star_progress_bar.max_value = level_data.star_3_score
@@ -119,6 +145,73 @@ func _setup_star_progress() -> void:
 	star_3_label.position.x = 10.0 + bar_width - 20.0
 
 	goal_label.text = "Goal: %d pts" % level_data.star_1_score
+
+
+func _setup_goal_display() -> void:
+	var goals: Dictionary = GameManager.get_goals()
+	if goals.is_empty():
+		return
+
+	var level_data: LevelData = GameManager.current_level_data
+
+	# Update the static goal label to show the level type
+	if level_data:
+		match level_data.goal_type:
+			LevelData.GoalType.COLLECT:
+				var type_name: String = PieceData.get_piece_name(
+					level_data.goal_params.get("type", 0)
+				)
+				goal_label.text = "Collect %s!" % type_name
+			LevelData.GoalType.CLEAR_OBSTACLES:
+				goal_label.text = "Clear obstacles!"
+			LevelData.GoalType.CHARGE_MANA:
+				goal_label.text = "Charge mana!"
+			LevelData.GoalType.MIXED:
+				goal_label.text = "Complete all goals!"
+
+	# Create a container for goal progress labels
+	_goal_container = VBoxContainer.new()
+	_goal_container.name = "GoalPanel"
+	_goal_container.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_goal_container.offset_top = 86.0
+	_goal_container.offset_left = 10.0
+	_goal_container.offset_right = -10.0
+	_goal_container.add_theme_constant_override("separation", 2)
+	_goal_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_goal_container)
+
+	# Create a label for each goal
+	for goal_id: String in goals:
+		var g: Dictionary = goals[goal_id]
+		var lbl := Label.new()
+		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.modulate = Color(0.8, 0.9, 1.0)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_update_goal_label_text(lbl, goal_id, g["current"], g["target"])
+		_goal_container.add_child(lbl)
+		_goal_labels[goal_id] = lbl
+
+
+func _update_goal_label_text(lbl: Label, goal_id: String, current: int, target: int) -> void:
+	var display_name: String = GOAL_DISPLAY_NAMES.get(goal_id, goal_id)
+	if current >= target:
+		lbl.text = "%s: %d/%d  ✓" % [display_name, current, target]
+		lbl.modulate = Color(0.3, 1.0, 0.3)
+	else:
+		lbl.text = "%s: %d/%d" % [display_name, current, target]
+		lbl.modulate = Color(0.8, 0.9, 1.0)
+
+
+func _on_goal_progress_updated(goal_id: String, current: int, target: int) -> void:
+	if _goal_labels.has(goal_id):
+		_update_goal_label_text(_goal_labels[goal_id], goal_id, current, target)
+
+
+func _on_all_goals_completed() -> void:
+	# Flash all goal labels green briefly
+	for goal_id: String in _goal_labels:
+		var lbl: Label = _goal_labels[goal_id]
+		lbl.modulate = Color(0.3, 1.0, 0.3)
 
 
 func _on_score_changed(new_score: int) -> void:
@@ -250,6 +343,14 @@ func _on_cascade_started(multiplier: float) -> void:
 	cascade_label.scale = Vector2(1.5, 1.5)
 	_cascade_tween.tween_property(cascade_label, "scale", Vector2.ONE, 0.3)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _on_screen_shake_requested(intensity: float) -> void:
+	var board_container: Node2D = $BoardContainer
+	if board_container:
+		var board: Node2D = board_container.get_node("Board")
+		if board and board.piece_animator:
+			board.piece_animator.animate_shake(board_container, intensity)
 
 
 func _on_board_settled() -> void:

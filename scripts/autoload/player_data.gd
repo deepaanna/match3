@@ -34,6 +34,9 @@ var starter_pack_shown: bool = false
 var starter_pack_purchased: bool = false
 var tutorial_completed: bool = false
 
+# Tutorial hints: hint_id -> true (shown once, never again)
+var tutorial_hints_shown: Dictionary = {}
+
 # Trail cameras: biome_id -> {placed_time: float, duration_hours: int}
 var trail_cameras: Dictionary = {}
 
@@ -215,6 +218,18 @@ func add_credibility_xp(amount: int) -> void:
 	save_data()
 
 
+# --- Tutorial hints ---
+
+func is_hint_shown(hint_id: String) -> bool:
+	return tutorial_hints_shown.has(hint_id)
+
+
+func mark_hint_shown(hint_id: String) -> void:
+	if not tutorial_hints_shown.has(hint_id):
+		tutorial_hints_shown[hint_id] = true
+		save_data()
+
+
 # --- Save / Load ---
 
 func save_data() -> void:
@@ -235,6 +250,7 @@ func save_data() -> void:
 		"starter_pack_shown": starter_pack_shown,
 		"starter_pack_purchased": starter_pack_purchased,
 		"tutorial_completed": tutorial_completed,
+		"tutorial_hints_shown": tutorial_hints_shown,
 		"trail_cameras": trail_cameras,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -284,6 +300,7 @@ func load_data() -> void:
 	starter_pack_shown = data.get("starter_pack_shown", false)
 	starter_pack_purchased = data.get("starter_pack_purchased", false)
 	tutorial_completed = data.get("tutorial_completed", false)
+	tutorial_hints_shown = data.get("tutorial_hints_shown", {})
 	trail_cameras = data.get("trail_cameras", {})
 
 
@@ -307,4 +324,5 @@ func _init_new_player() -> void:
 	starter_pack_shown = false
 	starter_pack_purchased = false
 	tutorial_completed = false
+	tutorial_hints_shown = {}
 	trail_cameras = {}

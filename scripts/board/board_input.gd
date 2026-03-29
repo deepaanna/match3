@@ -1,5 +1,5 @@
 extends Node
-## Handles click/swipe input for piece selection and swap requests.
+## Handles click/swipe/touch input for piece selection and swap requests.
 
 var _selected_col: int = -1
 var _selected_row: int = -1
@@ -19,18 +19,25 @@ func _unhandled_input(event: InputEvent) -> void:
 	if GameManager.state != GameManager.GameState.PLAYING:
 		return
 
+	# Press / release (mouse click or touch)
 	if event is InputEventMouseButton:
-		_handle_mouse_button(event as InputEventMouseButton)
-	elif event is InputEventMouseMotion and _is_dragging:
-		_handle_mouse_motion(event as InputEventMouseMotion)
+		var e := event as InputEventMouseButton
+		if e.button_index == MOUSE_BUTTON_LEFT:
+			_handle_press(e.position, e.pressed)
+	elif event is InputEventScreenTouch:
+		var e := event as InputEventScreenTouch
+		_handle_press(e.position, e.pressed)
+	# Drag (mouse motion or touch drag)
+	elif _is_dragging:
+		if event is InputEventMouseMotion:
+			_handle_drag_move((event as InputEventMouseMotion).position)
+		elif event is InputEventScreenDrag:
+			_handle_drag_move((event as InputEventScreenDrag).position)
 
 
-func _handle_mouse_button(event: InputEventMouseButton) -> void:
-	if event.button_index != MOUSE_BUTTON_LEFT:
-		return
-
-	if event.pressed:
-		_drag_start = _to_local(event.position)
+func _handle_press(viewport_pos: Vector2, pressed: bool) -> void:
+	if pressed:
+		_drag_start = _to_local(viewport_pos)
 		_is_dragging = true
 
 		var cell: Vector2i = board.pixel_to_grid(_drag_start)
@@ -39,7 +46,7 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 			return
 
 		if _selected_col >= 0 and _selected_row >= 0:
-			# Second click — attempt swap
+			# Second tap — attempt swap
 			if board.are_adjacent(_selected_col, _selected_row, cell.x, cell.y):
 				var from_col: int = _selected_col
 				var from_row: int = _selected_row
@@ -49,14 +56,14 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 				# Select new piece instead
 				_select(cell.x, cell.y)
 		else:
-			# First click — select
+			# First tap — select
 			_select(cell.x, cell.y)
 	else:
 		_is_dragging = false
 
 
-func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
-	var local_pos: Vector2 = _to_local(event.position)
+func _handle_drag_move(viewport_pos: Vector2) -> void:
+	var local_pos: Vector2 = _to_local(viewport_pos)
 	var drag_delta: Vector2 = local_pos - _drag_start
 	if drag_delta.length() < GameConfig.MIN_SWIPE_DISTANCE:
 		return

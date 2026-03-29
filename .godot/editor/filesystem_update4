@@ -1,0 +1,15 @@
+res://scenes/game_screen.gd
+res://scenes/ui/biome_slot.gd
+res://scenes/ui/pre_level_popup.gd
+res://scenes/ui/team_selector.gd
+res://scripts/autoload/game_manager.gd
+res://scripts/board/board.gd
+res://scripts/board/board_input.gd
+res://scripts/board/piece_animator.gd
+res://scripts/data/game_config.gd
+res://scenes/piece.gd
+res://scripts/data/piece_data.gd
+res://scripts/autoload/event_bus.gd
+res://scripts/board/match_finder.gd
+res://scripts/data/level_data.gd
+res://scripts/autoload/player_data.gd

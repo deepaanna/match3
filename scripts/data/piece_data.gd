@@ -13,6 +13,21 @@ enum PieceType {
 
 const PIECE_COUNT: int = 6
 
+enum BoosterType {
+	NONE = 0,
+	LINE_H = 1,     # Clears entire row — "Bigfoot Slam"
+	LINE_V = 2,     # Clears entire column — "Mothman Dive"
+	AREA_BOMB = 3,  # Clears 3×3 area — "Nessie Splash"
+	COLOR_BOMB = 4, # Clears all of one color — "Cryptid Beacon"
+}
+
+const BOOSTER_NAMES: Dictionary = {
+	BoosterType.LINE_H: "Bigfoot Slam",
+	BoosterType.LINE_V: "Mothman Dive",
+	BoosterType.AREA_BOMB: "Nessie Splash",
+	BoosterType.COLOR_BOMB: "Cryptid Beacon",
+}
+
 const PIECE_COLORS: Dictionary = {
 	PieceType.BIGFOOT: Color(0.55, 0.35, 0.17),       # Brown
 	PieceType.MOTHMAN: Color(0.85, 0.15, 0.15),       # Red
