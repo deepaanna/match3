@@ -69,6 +69,9 @@ func _ready() -> void:
 	)
 
 	EventBus.ability_activated.connect(_on_ability_activated)
+	EventBus.row_cleared.connect(_on_row_cleared)
+	EventBus.column_cleared.connect(_on_column_cleared)
+	EventBus.area_cleared.connect(_on_area_cleared)
 
 	# Initialize labels
 	level_label.text = "Level %d" % GameManager.current_level
@@ -351,6 +354,54 @@ func _on_screen_shake_requested(intensity: float) -> void:
 		var board: Node2D = board_container.get_node("Board")
 		if board and board.piece_animator:
 			board.piece_animator.animate_shake(board_container, intensity)
+
+
+func _on_row_cleared(row: int) -> void:
+	var board_container: Node2D = $BoardContainer
+	var rect := ColorRect.new()
+	var y: float = GameConfig.BOARD_OFFSET_Y + row * GameConfig.CELL_SIZE
+	rect.position = Vector2(GameConfig.BOARD_OFFSET_X, y)
+	rect.size = Vector2(GameConfig.GRID_COLS * GameConfig.CELL_SIZE, GameConfig.CELL_SIZE)
+	rect.color = Color(1.0, 0.9, 0.5, 0.4)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_container.add_child(rect)
+	var t := create_tween()
+	t.tween_property(rect, "color:a", 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_callback(rect.queue_free)
+
+
+func _on_column_cleared(col: int) -> void:
+	var board_container: Node2D = $BoardContainer
+	var rect := ColorRect.new()
+	var x: float = GameConfig.BOARD_OFFSET_X + col * GameConfig.CELL_SIZE
+	rect.position = Vector2(x, GameConfig.BOARD_OFFSET_Y)
+	rect.size = Vector2(GameConfig.CELL_SIZE, GameConfig.GRID_ROWS * GameConfig.CELL_SIZE)
+	rect.color = Color(0.5, 0.8, 1.0, 0.4)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_container.add_child(rect)
+	var t := create_tween()
+	t.tween_property(rect, "color:a", 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_callback(rect.queue_free)
+
+
+func _on_area_cleared(center_col: int, center_row: int, radius: int) -> void:
+	var board_container: Node2D = $BoardContainer
+	var x: float = GameConfig.BOARD_OFFSET_X + (center_col - radius) * GameConfig.CELL_SIZE
+	var y: float = GameConfig.BOARD_OFFSET_Y + (center_row - radius) * GameConfig.CELL_SIZE
+	var side: float = (radius * 2 + 1) * GameConfig.CELL_SIZE
+	var rect := ColorRect.new()
+	rect.position = Vector2(x, y)
+	rect.size = Vector2(side, side)
+	rect.color = Color(1.0, 0.6, 0.3, 0.35)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_container.add_child(rect)
+	# Expand outward slightly as it fades
+	var t := create_tween().set_parallel(true)
+	t.tween_property(rect, "color:a", 0.0, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(rect, "position", rect.position - Vector2(4, 4), 0.5)
+	t.tween_property(rect, "size", rect.size + Vector2(8, 8), 0.5)
+	t.set_parallel(false)
+	t.tween_callback(rect.queue_free)
 
 
 func _on_board_settled() -> void:

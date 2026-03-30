@@ -8,7 +8,8 @@
       "Bash(find \"D:\\\\GameDev\\\\Claude\\\\Cryptid Clash\" -type f -name \"*.tscn\" -exec grep \"path=\"\"res://\" {} +)",
       "Bash(xargs grep:*)",
       "Bash(grep -r \"SHIELD\\\\|ObstacleType\\\\|obstacle\" 'D:\\\\GameDev\\\\Claude\\\\Cryptid Clash' --include=*.gd)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(grep -rn \"row_cleared\\\\|column_cleared\\\\|area_cleared\\\\|pieces_converted\" '/d/GameDev/Claude/Cryptid Clash/scenes' '/d/GameDev/Claude/Cryptid Clash/scripts' --include=*.gd)"
     ]
   }
 }
