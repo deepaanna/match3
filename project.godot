@@ -21,6 +21,7 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 SceneManager="*res://scripts/autoload/scene_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 PlayerData="*res://scripts/autoload/player_data.gd"
+DebugMenu="*res://scripts/autoload/debug_menu.gd"
 
 [display]
 

@@ -7,7 +7,8 @@
       "Bash(grep -l 'script = ' D:GameDevClaudeCryptid Clash/scenes/*.tscn D:GameDevClaudeCryptid Clash/scenes/ui/*.tscn)",
       "Bash(find \"D:\\\\GameDev\\\\Claude\\\\Cryptid Clash\" -type f -name \"*.tscn\" -exec grep \"path=\"\"res://\" {} +)",
       "Bash(xargs grep:*)",
-      "Bash(grep -r \"SHIELD\\\\|ObstacleType\\\\|obstacle\" 'D:\\\\GameDev\\\\Claude\\\\Cryptid Clash' --include=*.gd)"
+      "Bash(grep -r \"SHIELD\\\\|ObstacleType\\\\|obstacle\" 'D:\\\\GameDev\\\\Claude\\\\Cryptid Clash' --include=*.gd)",
+      "Bash(python3:*)"
     ]
   }
 }
