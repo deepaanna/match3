@@ -86,18 +86,16 @@ func _show_stars(count: int) -> void:
 
 
 func _add_rewards_section() -> void:
-	var star_rating: int = 0
-	if GameManager.current_level_data:
-		star_rating = GameManager.current_level_data.get_star_rating(GameManager.score)
+	# Read the actual awarded amount from GameManager (set in _record_completion)
+	var fragments: int = GameManager.last_reward_fragments
 
-	var fragments: int = 10 + star_rating * 5
-	if star_rating > 0:
-		fragments += 15  # first-clear bonus (simplified)
+	if fragments > 0:
+		rewards_label.text = "Rewards: +%d Evidence Fragments\n(spend at Investigate to find cryptids)" % fragments
+	else:
+		rewards_label.text = "No rewards this time.\nScore higher to earn fragments!"
 
-	rewards_label.text = "Rewards: +%d Evidence Fragments\n(spend at Investigate to find cryptids)" % fragments
-
-	# Double rewards button
-	if not _doubled and star_rating > 0:
+	# Double rewards button (only on completion with rewards)
+	if not _doubled and fragments > 0:
 		var double_btn := Button.new()
 		double_btn.text = "Double Rewards (Watch Ad)"
 		double_btn.custom_minimum_size = Vector2(250, 45)

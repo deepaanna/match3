@@ -17,6 +17,7 @@ var _result_index: int = 0
 func _ready() -> void:
 	_fragment_label.text = "Fragments: %d" % PlayerData.evidence_fragments
 	_update_pity_label()
+	_update_pull_buttons()
 
 	_single_pull_button.pressed.connect(_on_single_pull)
 	_multi_pull_button.pressed.connect(_on_multi_pull)
@@ -111,6 +112,14 @@ func _update_pity_label() -> void:
 
 func _on_fragments_changed(_amount: int) -> void:
 	_fragment_label.text = "Fragments: %d" % PlayerData.evidence_fragments
+	_update_pull_buttons()
+
+
+func _update_pull_buttons() -> void:
+	_single_pull_button.disabled = not GachaSystem.can_pull_single()
+	_multi_pull_button.disabled = not GachaSystem.can_pull_multi()
+	_single_pull_button.text = "Investigate (%d)" % GachaSystem.SINGLE_COST
+	_multi_pull_button.text = "Investigate x10 (%d)" % GachaSystem.MULTI_COST
 
 
 func _on_back() -> void:

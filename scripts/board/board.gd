@@ -175,7 +175,38 @@ func _resolve_initial_matches() -> void:
 		if matches.is_empty():
 			return
 		for pos: Vector2i in matches:
-			grid[pos.x][pos.y] = randi() % _num_colors
+			grid[pos.x][pos.y] = _get_safe_type(pos.x, pos.y)
+
+
+func _get_safe_type(col: int, row: int) -> int:
+	## Pick a piece type that avoids 3-in-a-row in all four directions.
+	var available: Array[int] = []
+	for i in range(_num_colors):
+		available.append(i)
+
+	# Horizontal: X X ? — two same to the left
+	if col >= 2 and grid[col - 1][row] >= 0 and grid[col - 1][row] == grid[col - 2][row]:
+		available.erase(grid[col - 1][row])
+	# Horizontal: ? X X — two same to the right
+	if col <= GameConfig.GRID_COLS - 3 and grid[col + 1][row] >= 0 and grid[col + 1][row] == grid[col + 2][row]:
+		available.erase(grid[col + 1][row])
+	# Horizontal: X ? X — same on both sides
+	if col >= 1 and col <= GameConfig.GRID_COLS - 2 and grid[col - 1][row] >= 0 and grid[col - 1][row] == grid[col + 1][row]:
+		available.erase(grid[col - 1][row])
+
+	# Vertical: two same above
+	if row >= 2 and grid[col][row - 1] >= 0 and grid[col][row - 1] == grid[col][row - 2]:
+		available.erase(grid[col][row - 1])
+	# Vertical: two same below
+	if row <= GameConfig.GRID_ROWS - 3 and grid[col][row + 1] >= 0 and grid[col][row + 1] == grid[col][row + 2]:
+		available.erase(grid[col][row + 1])
+	# Vertical: same above and below
+	if row >= 1 and row <= GameConfig.GRID_ROWS - 2 and grid[col][row - 1] >= 0 and grid[col][row - 1] == grid[col][row + 1]:
+		available.erase(grid[col][row - 1])
+
+	if available.is_empty():
+		return randi() % _num_colors
+	return available[randi() % available.size()]
 
 
 func _spawn_initial_pieces() -> void:

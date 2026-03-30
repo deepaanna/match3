@@ -29,13 +29,13 @@ func try_activate_ability(cryptid_id: String) -> void:
 
 	match cryptid.ability_type:
 		CryptidData.AbilityType.CLEAR_ROW:
-			_activate_clear_row(cryptid.ability_power)
+			await _activate_clear_row(cryptid.ability_power)
 		CryptidData.AbilityType.CLEAR_COLUMN:
-			_activate_clear_column(cryptid.ability_power)
+			await _activate_clear_column(cryptid.ability_power)
 		CryptidData.AbilityType.CLEAR_AREA:
-			_activate_clear_area(cryptid.ability_power)
+			await _activate_clear_area(cryptid.ability_power)
 		CryptidData.AbilityType.CONVERT_TILES:
-			_activate_convert(cryptid)
+			await _activate_convert(cryptid)
 		CryptidData.AbilityType.SCORE_BOOST:
 			_activate_score_boost(cryptid.ability_power)
 		CryptidData.AbilityType.EXTRA_MOVES:
@@ -58,7 +58,7 @@ func _activate_clear_row(power: int) -> void:
 		var positions: Array[Vector2i] = _board.get_row_positions(row)
 		all_positions.append_array(positions)
 		EventBus.row_cleared.emit(row)
-	_board.execute_ability_clear(all_positions)
+	await _board.execute_ability_clear(all_positions)
 
 
 func _activate_clear_column(power: int) -> void:
@@ -73,7 +73,7 @@ func _activate_clear_column(power: int) -> void:
 		var positions: Array[Vector2i] = _board.get_column_positions(col)
 		all_positions.append_array(positions)
 		EventBus.column_cleared.emit(col)
-	_board.execute_ability_clear(all_positions)
+	await _board.execute_ability_clear(all_positions)
 
 
 func _activate_clear_area(power: int) -> void:
@@ -81,14 +81,14 @@ func _activate_clear_area(power: int) -> void:
 	var center_row: int = randi_range(power, GameConfig.GRID_ROWS - 1 - power)
 	var positions: Array[Vector2i] = _board.get_area_positions(center_col, center_row, power)
 	EventBus.area_cleared.emit(center_col, center_row, power)
-	_board.execute_ability_clear(positions)
+	await _board.execute_ability_clear(positions)
 
 
 func _activate_convert(cryptid: CryptidData) -> void:
 	var target_type: int = cryptid.base_cryptid
 	var positions: Array[Vector2i] = _board.get_random_positions_of_type(-1, cryptid.ability_power, target_type)
 	EventBus.pieces_converted.emit(positions, target_type)
-	_board.execute_ability_convert(positions, target_type)
+	await _board.execute_ability_convert(positions, target_type)
 
 
 func _activate_score_boost(power: int) -> void:

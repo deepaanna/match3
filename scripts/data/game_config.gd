@@ -13,7 +13,7 @@ const BOARD_OFFSET_Y: int = 240 # Top margin for HUD
 # Animation timing (seconds)
 const SWAP_DURATION: float = 0.2
 const CLEAR_DURATION: float = 0.3
-const FALL_DURATION_PER_CELL: float = 0.08
+const FALL_DURATION_PER_CELL: float = 0.12
 const FALL_MIN_DURATION: float = 0.1
 const SPAWN_DURATION: float = 0.3
 const CASCADE_DELAY: float = 0.05
@@ -36,7 +36,7 @@ const BOOSTER_ACTIVATE_SCORE: int = 200
 const BOOSTER_CREATE_DURATION: float = 0.35
 
 # Swipe detection
-const MIN_SWIPE_DISTANCE: float = 25.0
+const MIN_SWIPE_DISTANCE: float = 40.0
 
 # Visual
 const PIECE_SCALE: float = 0.85  # Relative to cell size

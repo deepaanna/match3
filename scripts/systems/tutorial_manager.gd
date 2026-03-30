@@ -65,6 +65,7 @@ var _cooldown_timer: float = 0.0
 var _active_hint_id: String = ""
 var _active_tween: Tween = null
 var _pulse_tween: Tween = null
+var _hint_queue: Array[String] = []
 
 
 func setup(board: Node2D, overlay_parent: Control) -> void:
@@ -86,6 +87,9 @@ func _connect_signals() -> void:
 func _process(delta: float) -> void:
 	if _cooldown_timer > 0.0:
 		_cooldown_timer -= delta
+		if _cooldown_timer <= 0.0 and _active_hint_id == "" and not _hint_queue.is_empty():
+			var next_id: String = _hint_queue.pop_front()
+			_try_show(next_id)
 
 
 # --- Trigger handlers ---
@@ -149,12 +153,6 @@ func _try_show(hint_id: String) -> void:
 	# Already shown (persisted)
 	if PlayerData.is_hint_shown(hint_id):
 		return
-	# Another hint is active
-	if _active_hint_id != "":
-		return
-	# Cooldown
-	if _cooldown_timer > 0.0:
-		return
 	# Hint definition check
 	if not HINTS.has(hint_id):
 		return
@@ -164,6 +162,12 @@ func _try_show(hint_id: String) -> void:
 
 	# Level gate
 	if level < hint.get("level", 0):
+		return
+
+	# Queue if another hint is active or on cooldown
+	if _active_hint_id != "" or _cooldown_timer > 0.0:
+		if not _hint_queue.has(hint_id):
+			_hint_queue.append(hint_id)
 		return
 
 	# Show it
@@ -351,7 +355,10 @@ func _create_arrow_node(from: Vector2, to: Vector2) -> Node2D:
 func _finish_hint() -> void:
 	_kill_pulse()
 	_active_hint_id = ""
-	_cooldown_timer = GameConfig.TUTORIAL_HINT_COOLDOWN
+	if not _hint_queue.is_empty():
+		_cooldown_timer = 0.5  # Short debounce between queued hints
+	else:
+		_cooldown_timer = GameConfig.TUTORIAL_HINT_COOLDOWN
 	EventBus.tutorial_hint_dismiss.emit()
 
 

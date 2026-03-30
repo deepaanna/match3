@@ -10,6 +10,7 @@ var cascade_multiplier: float = 1.0
 var current_level_data: LevelData = null
 var _shield_active: bool = false
 var _leader_skill_system: Node = null
+var last_reward_fragments: int = 0
 
 # Goal tracking
 var _goals: Dictionary = {}  # goal_id -> {current, target}
@@ -19,7 +20,6 @@ const MOVES_BONUS_SCORE: int = 50  # Bonus per remaining move when goals met ear
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	EventBus.play_pressed.connect(_on_play_pressed)
 	EventBus.pause_pressed.connect(_on_pause_pressed)
 	EventBus.resume_pressed.connect(_on_resume_pressed)
 	EventBus.quit_pressed.connect(_on_quit_pressed)
@@ -47,6 +47,7 @@ func start_game(level: int = 1) -> void:
 	cascade_multiplier = 1.0
 	_shield_active = false
 	_goals_met = false
+	last_reward_fragments = 0
 
 	# Apply leader skill extra moves
 	if _leader_skill_system and _leader_skill_system.has_method("get_extra_starting_moves"):
@@ -222,6 +223,7 @@ func _record_completion(stars: int) -> void:
 	# First-clear bonus: only on first ever completion
 	if old_stars == 0:
 		fragments += 15
+	last_reward_fragments = fragments
 	PlayerData.add_fragments(fragments)
 	# Credibility XP
 	PlayerData.add_credibility_xp(10 + stars * 5)
@@ -229,13 +231,6 @@ func _record_completion(stars: int) -> void:
 
 
 # --- Signal handlers ---
-
-func _on_play_pressed() -> void:
-	if not PlayerData.use_energy():
-		return
-	start_game(current_level)
-	SceneManager.change_scene("res://scenes/game_screen.tscn")
-
 
 func _on_pause_pressed() -> void:
 	if state == GameState.PLAYING:
