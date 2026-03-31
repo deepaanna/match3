@@ -96,6 +96,9 @@ signal board_ready()
 signal tutorial_hint_show(hint_id: String, text: String, position: Vector2)
 signal tutorial_hint_dismiss()
 
+# --- Feature Trickle System v1.0 ---
+signal discovery_moment(discovery_id: String, flavor_text: String)
+
 # --- Ability effect signals ---
 signal pieces_converted(positions: Array, new_type: int)
 signal row_cleared(row: int)

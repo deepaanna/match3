@@ -40,7 +40,17 @@ func _populate() -> void:
 	else:
 		_region_label.visible = false
 
-	if _level_data.flavor_text != "":
+	# Feature Trickle: show discovery flavor text with glow when discovery is pending
+	var pending_disc: Dictionary = {}
+	if _level_data.discovery_id != "":
+		if not PlayerData.has_seen_discovery(_level_data.discovery_id):
+			pending_disc = LevelData.DISCOVERIES.get(_level_data.discovery_id, {})
+
+	if not pending_disc.is_empty():
+		_flavor_label.text = pending_disc["text"]
+		_flavor_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.9))
+		_flavor_label.visible = true
+	elif _level_data.flavor_text != "":
 		_flavor_label.text = _level_data.flavor_text
 		_flavor_label.visible = true
 	else:

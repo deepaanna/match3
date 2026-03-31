@@ -11,6 +11,7 @@ enum ObstacleType { NONE = 0, ICE = 1, WEB = 2 }
 @export var star_3_score: int = 3000
 @export var region_id: String = ""
 @export var flavor_text: String = ""
+@export var discovery_id: String = ""
 @export var num_colors: int = 6
 @export var goal_type: int = GoalType.SCORE
 @export var goal_params: Dictionary = {}
@@ -30,6 +31,7 @@ const LEVEL_CATALOG: Dictionary = {
 		"moves": 25, "colors": 4, "goal": GoalType.SCORE,
 		"stars": [300, 800, 1200], "region": "pacific_nw",
 		"flavor": "Your cryptid-hunting journey begins here!",
+		"discovery_id": "cascade_first",
 	},
 	# L2: Introduce collection goal early while still easy (5 colors, generous target)
 	2: {
@@ -50,6 +52,7 @@ const LEVEL_CATALOG: Dictionary = {
 		"goal_params": {"ice": 6},
 		"stars": [500, 1200, 2000], "region": "pacific_nw",
 		"flavor": "Frozen evidence! Break through the ice.",
+		"discovery_id": "ice_first",
 		"obstacles": [
 			[2, 2, ObstacleType.ICE, 1], [5, 2, ObstacleType.ICE, 1],
 			[3, 4, ObstacleType.ICE, 1], [4, 4, ObstacleType.ICE, 1],
@@ -62,6 +65,7 @@ const LEVEL_CATALOG: Dictionary = {
 		"goal_params": {"type": 2, "count": 10, "ice": 4},  # PieceType.NESSIE
 		"stars": [600, 1400, 2400], "region": "pacific_nw",
 		"flavor": "Nessie sightings beneath the ice!",
+		"discovery_id": "mana_first",
 		"obstacles": [
 			[3, 2, ObstacleType.ICE, 1], [4, 2, ObstacleType.ICE, 1],
 			[3, 5, ObstacleType.ICE, 1], [4, 5, ObstacleType.ICE, 1],
@@ -72,6 +76,7 @@ const LEVEL_CATALOG: Dictionary = {
 		"moves": 22, "colors": 6, "goal": GoalType.SCORE,
 		"stars": [700, 1600, 2800], "region": "pacific_nw",
 		"flavor": "A new creature joins the fray. Adapt!",
+		"discovery_id": "booster_first",
 	},
 	# L7: Introduce webs — now 6 colors are familiar, one new thing at a time.
 	7: {
@@ -118,6 +123,105 @@ const LEVEL_CATALOG: Dictionary = {
 		],
 		"pre_boosters": [[3, 0, 1], [4, 7, 2]],  # [col, row, BoosterType] — LINE_H, LINE_V
 	},
+	# L11: Breather after boss — score, 5 colors, ease back in.
+	11: {
+		"moves": 24, "colors": 5, "goal": GoalType.SCORE,
+		"stars": [600, 1400, 2400], "region": "pacific_nw",
+		"flavor": "The canopy thins. Something watches from above.",
+		"discovery_id": "combo_first",
+	},
+	# L12: Collect + ice, moderate difficulty.
+	12: {
+		"moves": 22, "colors": 5, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"type": 3, "count": 12, "ice": 4},  # PieceType.CHUPACABRA
+		"stars": [700, 1600, 2800], "region": "pacific_nw",
+		"flavor": "Chupacabra tracks lead deeper into the frost.",
+		"obstacles": [
+			[2, 3, ObstacleType.ICE, 1], [5, 3, ObstacleType.ICE, 1],
+			[3, 5, ObstacleType.ICE, 2], [4, 5, ObstacleType.ICE, 2],
+		],
+	},
+	# L13: Clear obstacles, ice + web combo.
+	13: {
+		"moves": 22, "colors": 6, "goal": GoalType.CLEAR_OBSTACLES, "bonus": true,
+		"goal_params": {"ice": 6, "web": 3},
+		"stars": [800, 1800, 3200], "region": "pacific_nw",
+		"flavor": "The forest fights back with ice and web alike.",
+		"obstacles": [
+			[1, 2, ObstacleType.ICE, 2], [6, 2, ObstacleType.ICE, 2],
+			[3, 3, ObstacleType.ICE, 1], [4, 3, ObstacleType.ICE, 1],
+			[2, 5, ObstacleType.ICE, 1], [5, 5, ObstacleType.ICE, 1],
+			[0, 4, ObstacleType.WEB, 1], [7, 4, ObstacleType.WEB, 1],
+			[3, 6, ObstacleType.WEB, 1],
+		],
+	},
+	# L14: Mana charge + collect — demanding goal set.
+	14: {
+		"moves": 20, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"charges": 3, "type": 4, "count": 10},  # PieceType.YETI
+		"stars": [900, 2000, 3600], "region": "pacific_nw",
+		"flavor": "The Yeti's presence grows stronger. Channel it!",
+	},
+	# L15: Region finale — heavy obstacles, mixed goals, pre-placed boosters.
+	15: {
+		"moves": 28, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"score": 2000, "ice": 8, "web": 4},
+		"stars": [1200, 2600, 4200], "region": "pacific_nw",
+		"flavor": "The final guardian of this region emerges!",
+		"discovery_id": "persistent_booster",
+		"obstacles": [
+			[1, 1, ObstacleType.ICE, 2], [6, 1, ObstacleType.ICE, 2],
+			[2, 3, ObstacleType.ICE, 2], [5, 3, ObstacleType.ICE, 2],
+			[1, 5, ObstacleType.ICE, 2], [6, 5, ObstacleType.ICE, 2],
+			[3, 2, ObstacleType.ICE, 1], [4, 2, ObstacleType.ICE, 1],
+			[0, 3, ObstacleType.WEB, 1], [7, 3, ObstacleType.WEB, 1],
+			[3, 4, ObstacleType.WEB, 1], [4, 4, ObstacleType.WEB, 1],
+		],
+		"pre_boosters": [[3, 0, 1], [4, 7, 2]],
+	},
+}
+
+
+# === FEATURE TRICKLE SYSTEM v1.0 ===
+# One-time discoveries triggered when the player first encounters a mechanic.
+# Each discovery shows a themed popup, grants a small reward, and never repeats.
+const DISCOVERIES: Dictionary = {
+	"cascade_first": {
+		"text": "The forest stirs\u2026",
+		"reward_type": "fragments",
+		"reward_amount": 10,
+		"reward_label": "+10 Evidence Fragments!",
+	},
+	"mana_first": {
+		"text": "Your cryptid awakens\u2026",
+		"reward_type": "credibility_xp",
+		"reward_amount": 15,
+		"reward_label": "+15 Credibility XP!",
+	},
+	"booster_first": {
+		"text": "A legendary power has been unleashed!",
+		"reward_type": "fragments",
+		"reward_amount": 15,
+		"reward_label": "+15 Evidence Fragments!",
+	},
+	"ice_first": {
+		"text": "Frozen secrets guard the truth\u2026",
+		"reward_type": "fragments",
+		"reward_amount": 20,
+		"reward_label": "+20 Evidence Fragments!",
+	},
+	"combo_first": {
+		"text": "The forest echoes your skill!",
+		"reward_type": "extra_moves",
+		"reward_amount": 1,
+		"reward_label": "+1 Extra Move!",
+	},
+	"persistent_booster": {
+		"text": "This power lingers\u2026 use it wisely",
+		"reward_type": "fragments",
+		"reward_amount": 25,
+		"reward_label": "+25 Evidence Fragments!",
+	},
 }
 
 
@@ -147,6 +251,7 @@ static func _from_catalog(level: int, entry: Dictionary) -> LevelData:
 	data.moves_bonus = entry.get("bonus", false)
 	data.region_id = entry.get("region", "pacific_nw")
 	data.flavor_text = entry.get("flavor", "")
+	data.discovery_id = entry.get("discovery_id", "")
 
 	var stars: Array = entry.get("stars", [500, 1500, 3000])
 	data.star_1_score = stars[0]

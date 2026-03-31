@@ -230,6 +230,16 @@ func mark_hint_shown(hint_id: String) -> void:
 		save_data()
 
 
+# === FEATURE TRICKLE SYSTEM v1.0 ===
+
+func has_seen_discovery(discovery_id: String) -> bool:
+	return tutorial_hints_shown.has("disc_" + discovery_id)
+
+
+func mark_discovery_seen(discovery_id: String) -> void:
+	mark_hint_shown("disc_" + discovery_id)
+
+
 # --- Save / Load ---
 
 func save_data() -> void:
