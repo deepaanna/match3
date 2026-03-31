@@ -24,6 +24,7 @@ var _failure_popup: Control = null
 var _tutorial_manager: Node = null
 var _goal_labels: Dictionary = {}  # goal_id -> Label node
 var _goal_container: VBoxContainer = null
+var _shuffle_popup: Control = null
 
 const TEAM_PANEL_SCENE: PackedScene = preload("res://scenes/ui/team_panel.tscn")
 const GAME_OVER_POPUP_SCENE: PackedScene = preload("res://scenes/ui/game_over_popup.tscn")
@@ -72,6 +73,8 @@ func _ready() -> void:
 	EventBus.row_cleared.connect(_on_row_cleared)
 	EventBus.column_cleared.connect(_on_column_cleared)
 	EventBus.area_cleared.connect(_on_area_cleared)
+	EventBus.no_moves_detected.connect(_on_no_moves_detected)
+	EventBus.shuffle_used.connect(_on_shuffle_used)
 
 	# Initialize labels
 	level_label.text = "Level %d" % GameManager.current_level
@@ -412,3 +415,109 @@ func _on_board_settled() -> void:
 		_cascade_tween = create_tween()
 		_cascade_tween.tween_interval(0.5)
 		_cascade_tween.tween_callback(func() -> void: cascade_label.visible = false)
+
+
+# --- Shuffle popup ---
+
+func _on_no_moves_detected(is_free: bool) -> void:
+	if is_free:
+		_show_shuffle_toast("No moves! Shuffling...")
+	else:
+		_show_shuffle_popup()
+
+
+func _on_shuffle_used() -> void:
+	_remove_shuffle_popup()
+
+
+func _show_shuffle_toast(text: String) -> void:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.9))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	label.set_anchors_preset(Control.PRESET_CENTER)
+	label.offset_top = -40.0
+	label.offset_bottom = -10.0
+	label.offset_left = -200.0
+	label.offset_right = 200.0
+	add_child(label)
+	var tween := create_tween()
+	tween.tween_interval(0.6)
+	tween.tween_property(label, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(label.queue_free)
+
+
+func _show_shuffle_popup() -> void:
+	if _shuffle_popup:
+		return
+
+	_shuffle_popup = Control.new()
+	_shuffle_popup.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_shuffle_popup.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	# Semi-transparent overlay
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.05, 0.1, 0.7)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shuffle_popup.add_child(bg)
+
+	# Panel
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.offset_left = -140.0
+	panel.offset_right = 140.0
+	panel.offset_top = -70.0
+	panel.offset_bottom = 70.0
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.1, 0.15, 0.95)
+	style.corner_radius_top_left = 10
+	style.corner_radius_top_right = 10
+	style.corner_radius_bottom_left = 10
+	style.corner_radius_bottom_right = 10
+	style.content_margin_left = 20.0
+	style.content_margin_right = 20.0
+	style.content_margin_top = 16.0
+	style.content_margin_bottom = 16.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+
+	var title := Label.new()
+	title.text = "No valid moves!"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.6, 1.0, 0.9))
+	vbox.add_child(title)
+
+	var btn := Button.new()
+	var can_afford: bool = PlayerData.cryptid_coins >= 10
+	if can_afford:
+		btn.text = "Shuffle (10 Coins)"
+	else:
+		btn.text = "Shuffle (free — no coins)"
+	btn.pressed.connect(_on_shuffle_confirmed.bind(can_afford))
+	vbox.add_child(btn)
+
+	panel.add_child(vbox)
+	_shuffle_popup.add_child(panel)
+	add_child(_shuffle_popup)
+
+
+func _on_shuffle_confirmed(charge_coins: bool) -> void:
+	if charge_coins:
+		PlayerData.spend_coins(10)
+	_remove_shuffle_popup()
+	EventBus.shuffle_confirmed.emit()
+
+
+func _remove_shuffle_popup() -> void:
+	if _shuffle_popup:
+		_shuffle_popup.queue_free()
+		_shuffle_popup = null

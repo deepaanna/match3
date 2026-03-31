@@ -179,6 +179,166 @@ const LEVEL_CATALOG: Dictionary = {
 		],
 		"pre_boosters": [[3, 0, 1], [4, 7, 2]],
 	},
+	# ============================
+	# REGION 2: Point Pleasant (Levels 16–30)
+	# ============================
+	# L16: Region opener — score only, 5 colors, generous. Welcome to Point Pleasant.
+	16: {
+		"moves": 25, "colors": 5, "goal": GoalType.SCORE,
+		"stars": [500, 1200, 2000], "region": "point_pleasant",
+		"flavor": "The Mothman's homeland. Strange lights fill the sky.",
+	},
+	# L17: Collect Mothman pieces — thematic tie-in to Point Pleasant.
+	17: {
+		"moves": 22, "colors": 5, "goal": GoalType.COLLECT, "bonus": true,
+		"goal_params": {"type": 1, "count": 14},
+		"stars": [600, 1400, 2400], "region": "point_pleasant",
+		"flavor": "Mothman feathers litter the bridge. Collect them!",
+	},
+	# L18: Ice returns with a vengeance — 2-HP from the start.
+	18: {
+		"moves": 24, "colors": 5, "goal": GoalType.CLEAR_OBSTACLES, "bonus": true,
+		"goal_params": {"ice": 8},
+		"stars": [700, 1600, 2800], "region": "point_pleasant",
+		"flavor": "A bitter cold grips the river valley.",
+		"obstacles": [
+			[1, 2, ObstacleType.ICE, 2], [6, 2, ObstacleType.ICE, 2],
+			[2, 4, ObstacleType.ICE, 2], [5, 4, ObstacleType.ICE, 2],
+			[1, 6, ObstacleType.ICE, 1], [6, 6, ObstacleType.ICE, 1],
+			[3, 3, ObstacleType.ICE, 1], [4, 3, ObstacleType.ICE, 1],
+		],
+	},
+	# L19: Mixed collect + ice — demanding but rewarding.
+	19: {
+		"moves": 22, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"type": 0, "count": 12, "ice": 4},
+		"stars": [800, 1800, 3200], "region": "point_pleasant",
+		"flavor": "Bigfoot sightings near the frozen creek!",
+		"obstacles": [
+			[2, 2, ObstacleType.ICE, 2], [5, 2, ObstacleType.ICE, 2],
+			[2, 5, ObstacleType.ICE, 1], [5, 5, ObstacleType.ICE, 1],
+		],
+	},
+	# L20: Heavy web level — webs everywhere, need strategic adjacent clears.
+	20: {
+		"moves": 24, "colors": 6, "goal": GoalType.CLEAR_OBSTACLES, "bonus": true,
+		"goal_params": {"web": 6},
+		"stars": [700, 1600, 2800], "region": "point_pleasant",
+		"flavor": "Something has been weaving... everywhere.",
+		"obstacles": [
+			[1, 2, ObstacleType.WEB, 1], [6, 2, ObstacleType.WEB, 1],
+			[2, 4, ObstacleType.WEB, 1], [5, 4, ObstacleType.WEB, 1],
+			[1, 6, ObstacleType.WEB, 1], [6, 6, ObstacleType.WEB, 1],
+		],
+	},
+	# L21: Score challenge with 6 colors — no obstacles, pure combo building.
+	21: {
+		"moves": 20, "colors": 6, "goal": GoalType.SCORE,
+		"stars": [900, 2000, 3600], "region": "point_pleasant",
+		"flavor": "Red eyes gleam in the darkness. Focus!",
+	},
+	# L22: Mana charge goal + ice — channeling power under pressure.
+	22: {
+		"moves": 22, "colors": 5, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"charges": 5, "ice": 4},
+		"stars": [800, 1800, 3200], "region": "point_pleasant",
+		"flavor": "The bridge resonates with cryptid energy.",
+		"obstacles": [
+			[3, 2, ObstacleType.ICE, 2], [4, 2, ObstacleType.ICE, 2],
+			[3, 5, ObstacleType.ICE, 1], [4, 5, ObstacleType.ICE, 1],
+		],
+	},
+	# L23: Breather — collect with generous moves, 5 colors.
+	23: {
+		"moves": 24, "colors": 5, "goal": GoalType.COLLECT, "bonus": true,
+		"goal_params": {"type": 2, "count": 15},
+		"stars": [600, 1400, 2400], "region": "point_pleasant",
+		"flavor": "A calm stretch of river. Nessie would love this.",
+	},
+	# L24: Ice + web gauntlet — clearing heavy obstacles.
+	24: {
+		"moves": 24, "colors": 6, "goal": GoalType.CLEAR_OBSTACLES, "bonus": true,
+		"goal_params": {"ice": 6, "web": 4},
+		"stars": [900, 2000, 3600], "region": "point_pleasant",
+		"flavor": "The old TNT plant hides frozen secrets and tangled webs.",
+		"obstacles": [
+			[1, 1, ObstacleType.ICE, 2], [6, 1, ObstacleType.ICE, 2],
+			[3, 3, ObstacleType.ICE, 1], [4, 3, ObstacleType.ICE, 1],
+			[1, 5, ObstacleType.ICE, 2], [6, 5, ObstacleType.ICE, 2],
+			[0, 3, ObstacleType.WEB, 1], [7, 3, ObstacleType.WEB, 1],
+			[3, 6, ObstacleType.WEB, 1], [4, 6, ObstacleType.WEB, 1],
+		],
+	},
+	# L25: Mini-boss — mixed score + collect + obstacles, pre-placed booster.
+	25: {
+		"moves": 28, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"score": 1800, "type": 1, "count": 12, "ice": 4},
+		"stars": [1000, 2200, 3800], "region": "point_pleasant",
+		"flavor": "The Mothman descends. Prove your worth!",
+		"obstacles": [
+			[2, 2, ObstacleType.ICE, 2], [5, 2, ObstacleType.ICE, 2],
+			[2, 5, ObstacleType.ICE, 2], [5, 5, ObstacleType.ICE, 2],
+		],
+		"pre_boosters": [[3, 0, 3]],  # AREA_BOMB center-top
+	},
+	# L26: Post-boss breather — easy score, 5 colors.
+	26: {
+		"moves": 24, "colors": 5, "goal": GoalType.SCORE,
+		"stars": [700, 1600, 2800], "region": "point_pleasant",
+		"flavor": "The dust settles. Catch your breath, investigator.",
+	},
+	# L27: Collect Chupacabra + webs — thematic cross-region creature.
+	27: {
+		"moves": 22, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"type": 3, "count": 14, "web": 4},
+		"stars": [900, 2000, 3600], "region": "point_pleasant",
+		"flavor": "Chupacabra tracks cross the web-covered trails.",
+		"obstacles": [
+			[1, 3, ObstacleType.WEB, 1], [6, 3, ObstacleType.WEB, 1],
+			[2, 5, ObstacleType.WEB, 1], [5, 5, ObstacleType.WEB, 1],
+		],
+	},
+	# L28: Heavy ice fortress — 2-HP ice wall, demanding clears.
+	28: {
+		"moves": 22, "colors": 6, "goal": GoalType.CLEAR_OBSTACLES, "bonus": true,
+		"goal_params": {"ice": 10},
+		"stars": [1000, 2200, 3800], "region": "point_pleasant",
+		"flavor": "A wall of ice blocks the passage. Shatter it all!",
+		"obstacles": [
+			[1, 2, ObstacleType.ICE, 2], [2, 2, ObstacleType.ICE, 2],
+			[5, 2, ObstacleType.ICE, 2], [6, 2, ObstacleType.ICE, 2],
+			[1, 5, ObstacleType.ICE, 2], [2, 5, ObstacleType.ICE, 2],
+			[5, 5, ObstacleType.ICE, 2], [6, 5, ObstacleType.ICE, 2],
+			[3, 3, ObstacleType.ICE, 1], [4, 3, ObstacleType.ICE, 1],
+		],
+	},
+	# L29: Mana charge + collect + ice — all mechanics firing, tight moves.
+	29: {
+		"moves": 20, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"charges": 4, "type": 5, "count": 10, "ice": 4},
+		"stars": [1100, 2400, 4000], "region": "point_pleasant",
+		"flavor": "The Jersey Devil shrieks. Channel everything you have!",
+		"obstacles": [
+			[2, 3, ObstacleType.ICE, 2], [5, 3, ObstacleType.ICE, 2],
+			[3, 5, ObstacleType.ICE, 1], [4, 5, ObstacleType.ICE, 1],
+		],
+	},
+	# L30: Region 2 boss — massive obstacle field, mixed goals, pre-placed boosters.
+	30: {
+		"moves": 30, "colors": 6, "goal": GoalType.MIXED, "bonus": true,
+		"goal_params": {"score": 2500, "ice": 8, "web": 4},
+		"stars": [1400, 3000, 5000], "region": "point_pleasant",
+		"flavor": "The Silver Bridge trembles. This is it — the final confrontation!",
+		"obstacles": [
+			[1, 1, ObstacleType.ICE, 2], [6, 1, ObstacleType.ICE, 2],
+			[2, 3, ObstacleType.ICE, 2], [5, 3, ObstacleType.ICE, 2],
+			[1, 5, ObstacleType.ICE, 2], [6, 5, ObstacleType.ICE, 2],
+			[3, 2, ObstacleType.ICE, 1], [4, 2, ObstacleType.ICE, 1],
+			[0, 3, ObstacleType.WEB, 1], [7, 3, ObstacleType.WEB, 1],
+			[3, 4, ObstacleType.WEB, 1], [4, 4, ObstacleType.WEB, 1],
+		],
+		"pre_boosters": [[3, 0, 1], [4, 7, 2]],
+	},
 }
 
 

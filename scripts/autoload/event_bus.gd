@@ -99,6 +99,14 @@ signal tutorial_hint_dismiss()
 # --- Feature Trickle System v1.0 ---
 signal discovery_moment(discovery_id: String, flavor_text: String)
 
+# --- Shuffle signals ---
+signal no_moves_detected(is_free: bool)
+signal shuffle_confirmed()
+signal shuffle_used()
+
+# --- Daily Login signals ---
+signal daily_login_reward(streak: int, reward: Dictionary)
+
 # --- Ability effect signals ---
 signal pieces_converted(positions: Array, new_type: int)
 signal row_cleared(row: int)

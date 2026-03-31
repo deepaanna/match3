@@ -18,6 +18,8 @@ var _piece_pool: Array[Sprite2D] = []
 var _num_colors: int = PieceData.PIECE_COUNT  # How many piece types in play
 var _hint_timer: float = 0.0
 var _hint_tween: Tween = null
+var _free_shuffle_used: bool = false  # First shuffle per level is free
+var _shuffle_in_progress: bool = false  # Prevents double-prompting during cascade chains
 
 @export var match_finder: Node
 @export var piece_animator: Node
@@ -423,6 +425,7 @@ func _shuffle_board() -> void:
 func _settle_board() -> void:
 	## Called when cascades end. Checks for deadlock, shuffles if needed, then emits board_settled.
 	await _ensure_valid_board()
+	_shuffle_in_progress = false
 	state = BoardState.IDLE
 	_reset_hint_timer()
 	EventBus.board_settled.emit()
@@ -430,11 +433,28 @@ func _settle_board() -> void:
 
 func _ensure_valid_board() -> void:
 	## After board settles, check for valid moves. Shuffle if none exist.
+	## First shuffle per level is free (brief dramatic pause). Subsequent shuffles
+	## wait for player confirmation via shuffle_confirmed signal (costs coins).
 	## Also resolves any accidental post-shuffle matches.
 	for attempt in range(10):
 		if has_valid_moves():
 			return
+
+		# Only prompt the player on the first shuffle of a deadlock chain.
+		# Recursive calls from post-shuffle cascades skip the prompt.
+		if not _shuffle_in_progress:
+			_shuffle_in_progress = true
+			if not _free_shuffle_used:
+				_free_shuffle_used = true
+				EventBus.no_moves_detected.emit(true)
+				await get_tree().create_timer(0.8).timeout
+			else:
+				EventBus.no_moves_detected.emit(false)
+				await EventBus.shuffle_confirmed
+
 		await _shuffle_board()
+		EventBus.shuffle_used.emit()
+
 		# After shuffle, resolve any matches that formed
 		var groups: Array = match_finder.find_match_groups(grid)
 		if not groups.is_empty():

@@ -13,6 +13,11 @@ func _ready() -> void:
 	_investigate_button.pressed.connect(func() -> void: SceneManager.change_scene("res://scenes/investigation_screen.tscn"))
 	_cameras_button.pressed.connect(func() -> void: SceneManager.change_scene("res://scenes/trail_camera_screen.tscn"))
 
+	# Daily login streak check (deferred so layout is settled first)
+	var login_sys := preload("res://scripts/systems/daily_login_system.gd").new()
+	add_child(login_sys)
+	login_sys.call_deferred("check_and_show", self)
+
 
 func _on_play_pressed() -> void:
 	# Navigate to map screen instead of directly starting game

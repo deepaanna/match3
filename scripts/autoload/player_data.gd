@@ -40,6 +40,10 @@ var tutorial_hints_shown: Dictionary = {}
 # Trail cameras: biome_id -> {placed_time: float, duration_hours: int}
 var trail_cameras: Dictionary = {}
 
+# Daily login streak
+var login_streak: int = 0
+var last_login_day: int = 0  # Day number (Unix days since epoch)
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -240,6 +244,55 @@ func mark_discovery_seen(discovery_id: String) -> void:
 	mark_hint_shown("disc_" + discovery_id)
 
 
+# === DAILY LOGIN STREAK v1.0 ===
+
+func check_daily_login() -> Dictionary:
+	## Returns reward dict if new login day, empty dict if already logged in today.
+	var today: int = _get_day_number()
+	if last_login_day == today:
+		return {}  # Already logged in today
+	if last_login_day == today - 1:
+		login_streak += 1  # Consecutive day
+	else:
+		login_streak = 1  # Streak broken or first login
+	last_login_day = today
+	var reward: Dictionary = _get_streak_reward()
+	# Batch state changes, save once (add_fragments/add_energy each save individually)
+	evidence_fragments += reward["fragments"]
+	energy = mini(energy + reward["energy"], MAX_ENERGY)
+	last_energy_time = Time.get_unix_time_from_system()
+	save_data()
+	EventBus.fragments_changed.emit(evidence_fragments)
+	EventBus.energy_changed.emit(energy)
+	EventBus.daily_login_reward.emit(login_streak, reward)
+	return reward
+
+
+func _get_day_number() -> int:
+	return floori(Time.get_unix_time_from_system() / 86400.0)
+
+
+func _get_streak_reward() -> Dictionary:
+	var day: int = (login_streak - 1) % 7  # 0-6 cycle
+	match day:
+		0, 1, 2:
+			return {"fragments": 20, "energy": 1, "label": "Day %d: +20 Fragments, +1 Energy" % login_streak}
+		3, 4:
+			return {"fragments": 35, "energy": 2, "label": "Day %d: +35 Fragments, +2 Energy" % login_streak}
+		5:
+			return {"fragments": 50, "energy": 3, "label": "Day %d: +50 Fragments, +3 Energy" % login_streak}
+		6:
+			return {"fragments": 100, "energy": 5, "label": "Day %d: +100 Fragments, Full Energy!" % login_streak}
+	return {"fragments": 20, "energy": 1, "label": "Day %d: +20 Fragments, +1 Energy" % login_streak}
+
+
+func add_energy(amount: int) -> void:
+	energy = mini(energy + amount, MAX_ENERGY)
+	last_energy_time = Time.get_unix_time_from_system()
+	EventBus.energy_changed.emit(energy)
+	save_data()
+
+
 # --- Save / Load ---
 
 func save_data() -> void:
@@ -262,6 +315,8 @@ func save_data() -> void:
 		"tutorial_completed": tutorial_completed,
 		"tutorial_hints_shown": tutorial_hints_shown,
 		"trail_cameras": trail_cameras,
+		"login_streak": login_streak,
+		"last_login_day": last_login_day,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
@@ -312,6 +367,8 @@ func load_data() -> void:
 	tutorial_completed = data.get("tutorial_completed", false)
 	tutorial_hints_shown = data.get("tutorial_hints_shown", {})
 	trail_cameras = data.get("trail_cameras", {})
+	login_streak = data.get("login_streak", 0)
+	last_login_day = data.get("last_login_day", 0)
 
 
 func _init_new_player() -> void:
@@ -336,3 +393,5 @@ func _init_new_player() -> void:
 	tutorial_completed = false
 	tutorial_hints_shown = {}
 	trail_cameras = {}
+	login_streak = 0
+	last_login_day = 0
