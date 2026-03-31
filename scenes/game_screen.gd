@@ -1,4 +1,5 @@
 extends Control
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 @onready var score_label: Label = $HUD/HBoxContainer/ScoreLabel
 @onready var moves_label: Label = $HUD/HBoxContainer/MovesLabel
@@ -75,6 +76,8 @@ func _ready() -> void:
 	EventBus.area_cleared.connect(_on_area_cleared)
 	EventBus.no_moves_detected.connect(_on_no_moves_detected)
 	EventBus.shuffle_used.connect(_on_shuffle_used)
+	EventBus.vfx_request.connect(_on_vfx_request)
+	EventBus.persistent_booster_created.connect(_on_persistent_booster_created)
 
 	# Initialize labels
 	level_label.text = "Level %d" % GameManager.current_level
@@ -85,6 +88,9 @@ func _ready() -> void:
 	_setup_star_progress()
 	_setup_goal_display()
 	_setup_tutorial()
+
+	# Ambient mist particles behind the board
+	_spawn_mist_particles()
 
 
 func _setup_systems() -> void:
@@ -521,3 +527,92 @@ func _remove_shuffle_popup() -> void:
 	if _shuffle_popup:
 		_shuffle_popup.queue_free()
 		_shuffle_popup = null
+
+
+# --- VFX Polish ---
+
+func _on_vfx_request(effect: String, pos: Vector2) -> void:
+	match effect:
+		"ability_flash":
+			_show_ability_flash()
+
+
+func _show_ability_flash() -> void:
+	## Full-screen white flash that fades quickly — signals ability power.
+	var flash := ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1.0, 1.0, 1.0, 0.35)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	var t := create_tween()
+	t.tween_property(flash, "color:a", 0.0, 0.4)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_callback(flash.queue_free)
+
+
+func _on_persistent_booster_created(col: int, row: int, _type: int) -> void:
+	## Brief radial flash at the booster's board position.
+	var board_container: Node2D = $BoardContainer
+	var board: Node2D = board_container.get_node("Board")
+	var world_pos: Vector2 = board.grid_to_pixel(col, row)
+
+	var flash := ColorRect.new()
+	var half: float = GameConfig.CELL_SIZE * 0.8
+	flash.position = Vector2(world_pos.x - half, world_pos.y - half)
+	flash.size = Vector2(half * 2, half * 2)
+	flash.color = Color(1.0, 1.0, 0.7, 0.5)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_container.add_child(flash)
+
+	var t := create_tween().set_parallel(true)
+	t.tween_property(flash, "color:a", 0.0, 0.5)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(flash, "size", flash.size * 1.3, 0.5)
+	t.tween_property(flash, "position", flash.position - Vector2(half * 0.15, half * 0.15), 0.5)
+	t.set_parallel(false)
+	t.tween_callback(flash.queue_free)
+
+
+func _spawn_mist_particles() -> void:
+	## Subtle ambient mist behind the board — slow-drifting translucent circles.
+	var board_container: Node2D = $BoardContainer
+	var particles := GPUParticles2D.new()
+	particles.name = "MistParticles"
+	particles.amount = 12
+	particles.lifetime = 6.0
+	particles.z_index = -1
+	particles.position = Vector2(
+		GameConfig.BOARD_OFFSET_X + GameConfig.GRID_COLS * GameConfig.CELL_SIZE * 0.5,
+		GameConfig.BOARD_OFFSET_Y + GameConfig.GRID_ROWS * GameConfig.CELL_SIZE * 0.5
+	)
+
+	var mat := ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(
+		GameConfig.GRID_COLS * GameConfig.CELL_SIZE * 0.5,
+		GameConfig.GRID_ROWS * GameConfig.CELL_SIZE * 0.5,
+		0.0
+	)
+	mat.direction = Vector3(0, -1, 0)
+	mat.initial_velocity_min = 3.0
+	mat.initial_velocity_max = 8.0
+	mat.gravity = Vector3.ZERO
+	mat.scale_min = 4.0
+	mat.scale_max = 8.0
+	mat.color = Color(0.5, 0.8, 0.7, 0.06)
+	particles.process_material = mat
+
+	# Use a tiny white circle texture for the mist dots
+	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	var center := Vector2(4, 4)
+	for x in range(8):
+		for y in range(8):
+			var dist: float = Vector2(x, y).distance_to(center)
+			if dist < 3.5:
+				var a: float = 1.0 - (dist / 3.5)
+				img.set_pixel(x, y, Color(1, 1, 1, a))
+			else:
+				img.set_pixel(x, y, Color(1, 1, 1, 0))
+	particles.texture = ImageTexture.create_from_image(img)
+
+	board_container.add_child(particles)

@@ -1,4 +1,5 @@
 extends Node
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 const SAVE_PATH: String = "user://player_save.json"
 const MAX_ENERGY: int = 5

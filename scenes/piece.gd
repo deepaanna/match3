@@ -1,5 +1,6 @@
 extends Sprite2D
 ## Visual representation of a single board piece. Supports booster overlays.
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 var piece_type: int = PieceData.PieceType.NONE
 var booster_type: int = PieceData.BoosterType.NONE
@@ -9,6 +10,7 @@ var is_selected: bool = false
 
 var _highlight_tween: Tween = null
 var _booster_glow_tween: Tween = null
+var _booster_hold_tween: Tween = null
 
 static var _shared_texture: ImageTexture = null
 
@@ -53,12 +55,22 @@ func set_booster(type: int) -> void:
 func _start_booster_glow() -> void:
 	_stop_booster_glow()
 	var base_color: Color = PieceData.get_color(piece_type)
-	var bright: Color = base_color.lightened(0.5)
-	var dim: Color = base_color.lightened(0.25)
+	var bright: Color = base_color.lightened(0.65)
+	var dim: Color = base_color.lightened(0.35)
+	# Color pulse — brighter and slower for persistent "hold" feel
 	_booster_glow_tween = create_tween().set_loops()
-	_booster_glow_tween.tween_property(self, "modulate", bright, 0.6)\
+	_booster_glow_tween.tween_property(self, "modulate", bright, 0.8)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_booster_glow_tween.tween_property(self, "modulate", dim, 0.6)\
+	_booster_glow_tween.tween_property(self, "modulate", dim, 0.8)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# Scale "hold" pulse — gentle breathing that signals persistence
+	var base_scale: float = GameConfig.CELL_SIZE * GameConfig.PIECE_SCALE / texture.get_width()
+	var hold_up: float = base_scale * 1.08
+	var hold_down: float = base_scale * 0.97
+	_booster_hold_tween = create_tween().set_loops()
+	_booster_hold_tween.tween_property(self, "scale", Vector2.ONE * hold_up, 1.0)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_booster_hold_tween.tween_property(self, "scale", Vector2.ONE * hold_down, 1.0)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
@@ -66,6 +78,9 @@ func _stop_booster_glow() -> void:
 	if _booster_glow_tween:
 		_booster_glow_tween.kill()
 		_booster_glow_tween = null
+	if _booster_hold_tween:
+		_booster_hold_tween.kill()
+		_booster_hold_tween = null
 
 
 func set_selected(selected: bool) -> void:
@@ -82,16 +97,20 @@ func set_selected(selected: bool) -> void:
 		_highlight_tween.tween_property(self, "scale", Vector2.ONE * highlight, 0.3)
 		_highlight_tween.tween_property(self, "scale", Vector2.ONE * base_scale, 0.3)
 	else:
-		scale = Vector2.ONE * base_scale
+		# Don't snap scale on booster pieces — their hold pulse handles it
+		if booster_type == PieceData.BoosterType.NONE:
+			scale = Vector2.ONE * base_scale
 
 
 func _draw() -> void:
 	if booster_type == PieceData.BoosterType.NONE:
 		return
 
-	# Bright white glow ring behind the icon
-	var glow_color := Color(1, 1, 1, 0.3)
-	draw_arc(Vector2.ZERO, 24.0, 0, TAU, 32, glow_color, 4.0)
+	# Bright glow ring behind the icon — double ring for emphasis
+	var glow_color := Color(1, 1, 1, 0.35)
+	draw_arc(Vector2.ZERO, 26.0, 0, TAU, 32, glow_color, 5.0)
+	var inner_glow := Color(1, 1, 0.8, 0.2)
+	draw_arc(Vector2.ZERO, 20.0, 0, TAU, 32, inner_glow, 3.0)
 
 	var c: Color = Color(1, 1, 1, 0.95)
 

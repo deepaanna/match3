@@ -1,5 +1,6 @@
 extends Node
 ## Global signal hub. No logic, just signal declarations.
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 # Game state signals
 signal game_started()
@@ -114,3 +115,7 @@ signal column_cleared(col: int)
 signal area_cleared(center_col: int, center_row: int, radius: int)
 signal extra_moves_granted(amount: int)
 signal shield_activated()
+
+# --- Persistent Booster + VFX signals ---
+signal persistent_booster_created(col: int, row: int, type: int)
+signal vfx_request(effect: String, position: Vector2)

@@ -1,5 +1,6 @@
 extends Node
 ## Handles ability activation when player taps a fully-charged team portrait.
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 var _board: Node2D = null
 var _mana_system: Node = null
@@ -26,6 +27,7 @@ func try_activate_ability(cryptid_id: String) -> void:
 
 	_mana_system.consume_mana(cryptid_id)
 	EventBus.ability_activated.emit(cryptid_id)
+	EventBus.vfx_request.emit("ability_flash", Vector2.ZERO)
 
 	match cryptid.ability_type:
 		CryptidData.AbilityType.CLEAR_ROW:

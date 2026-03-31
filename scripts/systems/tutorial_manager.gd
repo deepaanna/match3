@@ -486,13 +486,13 @@ func _kill_pulse() -> void:
 	if _pulse_tween:
 		_pulse_tween.kill()
 		_pulse_tween = null
-		# Reset piece scales
+		# Reset piece scales (skip boosters — they have their own pulse)
 		if _board:
 			var base_scale: float = GameConfig.CELL_SIZE * GameConfig.PIECE_SCALE / 64.0
 			for col in range(GameConfig.GRID_COLS):
 				for row in range(GameConfig.GRID_ROWS):
 					var p: Sprite2D = _board.piece_nodes[col][row]
-					if p and not p.is_selected:
+					if p and not p.is_selected and p.booster_type == PieceData.BoosterType.NONE:
 						p.scale = Vector2.ONE * base_scale
 
 

@@ -3,6 +3,7 @@ extends Node2D
 ## Grid is column-major: grid[col][row], where row 0 is the top.
 ## Supports booster creation (4-match → line clear, 5-match → color bomb, L/T → area bomb).
 ## Supports obstacles: ice tiles (damaged on piece clear) and web blockers (prevent swaps).
+# PERSISTENT BOOSTERS + VFX + SAVE v1.0
 
 enum BoardState { IDLE, SWAPPING, CHECKING, CLEARING, FALLING, FILLING, SWAP_BACK, ABILITY }
 
@@ -377,12 +378,12 @@ func _kill_hint() -> void:
 	if _hint_tween:
 		_hint_tween.kill()
 		_hint_tween = null
-		# Reset scales of any hinted pieces
+		# Reset scales of any hinted pieces (skip boosters — they have their own pulse)
 		var base_scale: float = GameConfig.CELL_SIZE * GameConfig.PIECE_SCALE / 64.0
 		for col in range(GameConfig.GRID_COLS):
 			for row in range(GameConfig.GRID_ROWS):
 				var p: Sprite2D = piece_nodes[col][row]
-				if p and not p.is_selected:
+				if p and not p.is_selected and p.booster_type == PieceData.BoosterType.NONE:
 					p.scale = Vector2.ONE * base_scale
 
 
@@ -393,21 +394,27 @@ func _reset_hint_timer() -> void:
 
 func _shuffle_board() -> void:
 	## Shuffle all non-obstacle piece types and animate to new positions.
-	# Collect all piece types from non-empty, non-webbed cells
+	## Preserves booster state — boosters move with their piece type.
 	var positions: Array[Vector2i] = []
 	var types: Array[int] = []
+	var boosters: Array[int] = []
 	for col in range(GameConfig.GRID_COLS):
 		for row in range(GameConfig.GRID_ROWS):
 			if grid[col][row] != PieceData.PieceType.NONE:
 				positions.append(Vector2i(col, row))
 				types.append(grid[col][row])
+				var p: Sprite2D = piece_nodes[col][row]
+				boosters.append(p.booster_type if p else PieceData.BoosterType.NONE)
 
-	# Shuffle types
+	# Shuffle types + boosters together (Fisher-Yates)
 	for i in range(types.size() - 1, 0, -1):
 		var j: int = randi() % (i + 1)
-		var tmp: int = types[i]
+		var tmp_t: int = types[i]
 		types[i] = types[j]
-		types[j] = tmp
+		types[j] = tmp_t
+		var tmp_b: int = boosters[i]
+		boosters[i] = boosters[j]
+		boosters[j] = tmp_b
 
 	# Reassign and animate
 	var movements: Array = []
@@ -417,6 +424,8 @@ func _shuffle_board() -> void:
 		var piece: Sprite2D = piece_nodes[pos.x][pos.y]
 		if piece:
 			piece.setup(pos.x, pos.y, types[i])
+			if boosters[i] != PieceData.BoosterType.NONE:
+				piece.set_booster(boosters[i])
 			movements.append({"piece": piece, "target": grid_to_pixel(pos.x, pos.y)})
 
 	await piece_animator.animate_shuffle(movements)
@@ -562,13 +571,14 @@ func _process_match_groups(groups: Array, swap_pos: Vector2i = Vector2i(-1, -1))
 	if not booster_extras.is_empty():
 		GameManager.add_score(GameConfig.BOOSTER_ACTIVATE_SCORE)
 
-	# Create the new boosters
+	# Create the new boosters (persistent — they stay on the board until matched)
 	if not new_boosters.is_empty():
 		var booster_pieces: Array[Sprite2D] = []
 		for b: Dictionary in new_boosters:
 			_set_piece_booster(b["pos"], b["booster_type"], b["piece_type"])
 			if piece_nodes[b["pos"].x][b["pos"].y]:
 				booster_pieces.append(piece_nodes[b["pos"].x][b["pos"].y])
+			EventBus.persistent_booster_created.emit(b["pos"].x, b["pos"].y, b["booster_type"])
 		await piece_animator.animate_booster_create(booster_pieces)
 		GameManager.add_score(GameConfig.BOOSTER_CREATE_SCORE * new_boosters.size())
 
@@ -893,11 +903,11 @@ func _fill_empty() -> void:
 			if grid[col][row] == PieceData.PieceType.NONE:
 				empty_count += 1
 
-		# Fill from top
+		# Fill from top — use match-aware random to prevent runaway cascades
 		var spawn_row: int = 0
 		for row in range(GameConfig.GRID_ROWS):
 			if grid[col][row] == PieceData.PieceType.NONE:
-				var piece_type: int = randi() % _num_colors
+				var piece_type: int = _get_safe_type(col, row)
 				grid[col][row] = piece_type
 
 				var piece: Sprite2D = _create_piece_node(col, row, piece_type)
