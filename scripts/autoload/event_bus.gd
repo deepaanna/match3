@@ -1,6 +1,6 @@
 extends Node
 ## Global signal hub. No logic, just signal declarations.
-# PERSISTENT BOOSTERS + VFX + SAVE v1.0
+# FINAL LAUNCH SPRINT COMPLETE
 
 # Game state signals
 signal game_started()
@@ -119,3 +119,15 @@ signal shield_activated()
 # --- Persistent Booster + VFX signals ---
 signal persistent_booster_created(col: int, row: int, type: int)
 signal vfx_request(effect: String, position: Vector2)
+
+# --- Analytics signals ---
+signal analytics_event(event_name: String, parameters: Dictionary)
+
+# --- Battle Pass signals ---
+signal battle_pass_xp_gained(amount: int)
+signal battle_pass_reward_claimed(tier: int, is_premium: bool)
+
+# --- Minimal Monetization v1.0 ---
+signal energy_refill_requested()
+signal shop_opened()
+signal rewarded_ad_requested(reward_type: String)  # "extra_moves", "double_fragments", "free_energy"

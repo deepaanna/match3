@@ -75,6 +75,8 @@ func get_energy_regen_remaining() -> float:
 
 
 func use_energy() -> bool:
+	if GameManager.is_testing_build:
+		return true
 	_regen_energy()
 	if energy <= 0:
 		EventBus.energy_empty.emit()
@@ -217,6 +219,7 @@ func add_credibility_xp(amount: int) -> void:
 	credibility_xp += amount
 	var new_rank: int = CredibilityData.get_rank_index(credibility_xp)
 	EventBus.credibility_changed.emit(credibility_xp)
+	EventBus.battle_pass_xp_gained.emit(amount)
 	if new_rank > old_rank:
 		# Rank up bonus
 		add_coins(50 * new_rank)
@@ -289,6 +292,16 @@ func _get_streak_reward() -> Dictionary:
 
 func add_energy(amount: int) -> void:
 	energy = mini(energy + amount, MAX_ENERGY)
+	last_energy_time = Time.get_unix_time_from_system()
+	EventBus.energy_changed.emit(energy)
+	save_data()
+
+
+# === MINIMAL MONETIZATION v1.0 ===
+
+func add_purchased_energy(amount: int) -> void:
+	## Purchased energy can exceed MAX_ENERGY (soft cap is for regen only).
+	energy += amount
 	last_energy_time = Time.get_unix_time_from_system()
 	EventBus.energy_changed.emit(energy)
 	save_data()

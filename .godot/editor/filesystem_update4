@@ -1,1 +1,9 @@
 res://scripts/board/board.gd
+res://scenes/piece.gd
+res://scripts/autoload/event_bus.gd
+res://scripts/autoload/player_data.gd
+res://scripts/systems/tutorial_manager.gd
+res://scenes/home_screen.gd
+res://scripts/autoload/audio_manager.gd
+res://scripts/autoload/debug_menu.gd
+res://scripts/autoload/game_manager.gd

@@ -1,4 +1,5 @@
 extends Node
+# FINAL LAUNCH SPRINT COMPLETE
 
 enum GameState { IDLE, PLAYING, PAUSED, GAME_OVER, LEVEL_COMPLETE }
 
@@ -11,6 +12,8 @@ var current_level_data: LevelData = null
 var _shield_active: bool = false
 var _leader_skill_system: Node = null
 var last_reward_fragments: int = 0
+var last_reward_coins: int = 0
+var is_testing_build: bool = true  # Set false for production; bypasses energy cost
 
 # Goal tracking
 var _goals: Dictionary = {}  # goal_id -> {current, target}
@@ -33,6 +36,8 @@ func _ready() -> void:
 	EventBus.obstacle_cleared.connect(_on_obstacle_cleared)
 	EventBus.mana_full.connect(_on_mana_full_for_goal)
 	EventBus.victory_detonation_finished.connect(_on_victory_detonation_finished)
+	# MINIMAL MONETIZATION v1.0
+	EventBus.energy_refill_requested.connect(_on_energy_refill_requested)
 
 
 func set_leader_skill_system(system: Node) -> void:
@@ -48,6 +53,7 @@ func start_game(level: int = 1) -> void:
 	_shield_active = false
 	_goals_met = false
 	last_reward_fragments = 0
+	last_reward_coins = 0
 
 	# Apply leader skill extra moves
 	if _leader_skill_system and _leader_skill_system.has_method("get_extra_starting_moves"):
@@ -60,6 +66,11 @@ func start_game(level: int = 1) -> void:
 	EventBus.score_changed.emit(score)
 	EventBus.moves_changed.emit(moves_remaining)
 	EventBus.game_started.emit()
+	EventBus.analytics_event.emit("level_started", {
+		"level": current_level,
+		"moves": moves_remaining,
+		"goal": current_level_data.goal_type if current_level_data else -1,
+	})
 
 
 func _init_goals() -> void:
@@ -225,6 +236,11 @@ func _record_completion(stars: int) -> void:
 		fragments += 15
 	last_reward_fragments = fragments
 	PlayerData.add_fragments(fragments)
+	# Coin bonus based on star rating: 1★=8, 2★=12, 3★=18
+	var coin_reward: int = [0, 8, 12, 18][clampi(stars, 0, 3)]
+	last_reward_coins = coin_reward
+	if coin_reward > 0:
+		PlayerData.add_coins(coin_reward)
 	# Credibility XP
 	PlayerData.add_credibility_xp(10 + stars * 5)
 	EventBus.level_completed.emit(score, stars)
@@ -314,6 +330,13 @@ func _on_victory_detonation_finished(bonus_score: int) -> void:
 	var stars: int = current_level_data.get_star_rating(score)
 	stars = maxi(stars, 1)
 	_record_completion(stars)
+
+
+# MINIMAL MONETIZATION v1.0
+func _on_energy_refill_requested() -> void:
+	# ShopSystem handles the actual navigation — this is a fallback hook
+	# for GameManager to pause if needed during gameplay
+	pass
 
 
 func _on_mana_full_for_goal(_cryptid_id: String) -> void:

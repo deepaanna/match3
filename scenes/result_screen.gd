@@ -33,8 +33,10 @@ func _display_results() -> void:
 	# Set title based on outcome
 	if GameManager.state == GameManager.GameState.LEVEL_COMPLETE:
 		title_label.text = "LEVEL COMPLETE!"
+		EventBus.play_music.emit("victory_theme")
 	else:
 		title_label.text = "GAME OVER"
+		EventBus.play_music.emit("defeat_theme")
 
 	score_label.text = "Score: %d" % final_score
 
@@ -86,11 +88,15 @@ func _show_stars(count: int) -> void:
 
 
 func _add_rewards_section() -> void:
-	# Read the actual awarded amount from GameManager (set in _record_completion)
+	# Read the actual awarded amounts from GameManager (set in _record_completion)
 	var fragments: int = GameManager.last_reward_fragments
+	var coins: int = GameManager.last_reward_coins
 
 	if fragments > 0:
-		rewards_label.text = "Rewards: +%d Evidence Fragments\n(spend at Investigate to find cryptids)" % fragments
+		var reward_text: String = "Rewards: +%d Fragments" % fragments
+		if coins > 0:
+			reward_text += ", +%d Coins" % coins
+		rewards_label.text = reward_text
 	else:
 		rewards_label.text = "No rewards this time.\nScore higher to earn fragments!"
 
@@ -102,9 +108,14 @@ func _add_rewards_section() -> void:
 		double_btn.add_theme_font_size_override("font_size", 14)
 		double_btn.pressed.connect(func() -> void:
 			_doubled = true
+			EventBus.rewarded_ad_requested.emit("double_fragments")
 			AdPlacement.show_rewarded("double_rewards", func() -> void:
 				PlayerData.add_fragments(fragments)
-				rewards_label.text = "Rewards: +%d Fragments (Doubled!)" % (fragments * 2)
+				var coin_text: String = ""
+				if coins > 0:
+					PlayerData.add_coins(coins)
+					coin_text = ", +%d Coins" % (coins * 2)
+				rewards_label.text = "Rewards: +%d Fragments%s (Doubled!)" % [fragments * 2, coin_text]
 				EventBus.reward_doubled.emit()
 			)
 			double_btn.queue_free()

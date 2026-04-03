@@ -49,6 +49,9 @@ func _ready() -> void:
 	# Instantiate systems
 	_setup_systems()
 
+	# Music
+	EventBus.play_music.emit("gameplay_theme")
+
 	# Connect signals
 	EventBus.score_changed.connect(_on_score_changed)
 	EventBus.moves_changed.connect(_on_moves_changed)
@@ -289,10 +292,11 @@ func _on_continue_coins() -> void:
 
 
 func _on_continue_ad() -> void:
-	# Placeholder: ad would play here, then grant moves
-	GameManager.grant_extra_moves(5)
-	EventBus.ad_watched.emit("continue")
-	_remove_failure_popup()
+	# MINIMAL MONETIZATION v1.0: use AdPlacement for rewarded ad flow
+	AdPlacement.show_rewarded("extra_moves", func() -> void:
+		GameManager.grant_extra_moves(3)
+		_remove_failure_popup()
+	)
 
 
 func _on_give_up() -> void:

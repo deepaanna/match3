@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Cryptid Clash"
+config/name="Cryptid Clash: Echoes of the Unknown"
 run/main_scene="res://scenes/splash_screen.tscn"
 config/features=PackedStringArray("4.5", "Mobile")
 
@@ -22,6 +22,8 @@ SceneManager="*res://scripts/autoload/scene_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 PlayerData="*res://scripts/autoload/player_data.gd"
 DebugMenu="*res://scripts/autoload/debug_menu.gd"
+AnalyticsManager="*res://scripts/systems/analytics_manager.gd"
+ShopSystem="*res://scripts/systems/shop_system.gd"
 
 [display]
 
@@ -46,3 +48,10 @@ pointing/emulate_touch_from_mouse=true
 
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
+
+[export]
+
+# Export presets are configured via Editor > Export menu.
+# Android: package/unique_name = "com.cryptidclash.echoes"
+# iOS: application/bundle_identifier = "com.cryptidclash.echoes"
+# See SOFT_LAUNCH_CHECKLIST.md for full export instructions.

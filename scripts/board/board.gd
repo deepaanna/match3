@@ -21,6 +21,7 @@ var _hint_timer: float = 0.0
 var _hint_tween: Tween = null
 var _free_shuffle_used: bool = false  # First shuffle per level is free
 var _shuffle_in_progress: bool = false  # Prevents double-prompting during cascade chains
+var _natural_cascade_count: int = 0  # Cap natural cascades at 3, then force safe fill
 
 @export var match_finder: Node
 @export var piece_animator: Node
@@ -496,6 +497,7 @@ func _on_swap_requested(from_col: int, from_row: int, to_col: int, to_row: int) 
 
 	state = BoardState.SWAPPING
 	cascade_level = 0
+	_natural_cascade_count = 0
 	GameManager.start_cascade()
 	await _do_swap(from_col, from_row, to_col, to_row)
 
@@ -593,6 +595,7 @@ func _process_match_groups(groups: Array, swap_pos: Vector2i = Vector2i(-1, -1))
 	var new_groups: Array = match_finder.find_match_groups(grid)
 	if not new_groups.is_empty():
 		cascade_level += 1
+		_natural_cascade_count += 1
 		GameManager.increment_cascade()
 		await _process_match_groups(new_groups)
 	else:
@@ -907,7 +910,11 @@ func _fill_empty() -> void:
 		var spawn_row: int = 0
 		for row in range(GameConfig.GRID_ROWS):
 			if grid[col][row] == PieceData.PieceType.NONE:
-				var piece_type: int = _get_safe_type(col, row)
+				var piece_type: int
+				if _natural_cascade_count >= 3:
+					piece_type = _get_safe_type(col, row)
+				else:
+					piece_type = randi() % _num_colors
 				grid[col][row] = piece_type
 
 				var piece: Sprite2D = _create_piece_node(col, row, piece_type)
@@ -1043,6 +1050,7 @@ func execute_ability_clear(positions: Array[Vector2i]) -> void:
 		return
 	state = BoardState.ABILITY
 	cascade_level = 0
+	_natural_cascade_count = 0
 	GameManager.start_cascade()
 
 	# Score the cleared pieces
@@ -1069,6 +1077,7 @@ func execute_ability_clear(positions: Array[Vector2i]) -> void:
 	var new_groups: Array = match_finder.find_match_groups(grid)
 	if not new_groups.is_empty():
 		cascade_level += 1
+		_natural_cascade_count += 1
 		GameManager.increment_cascade()
 		await _process_match_groups(new_groups)
 	else:
@@ -1080,6 +1089,7 @@ func execute_ability_convert(positions: Array[Vector2i], new_type: int) -> void:
 		return
 	state = BoardState.ABILITY
 	cascade_level = 0
+	_natural_cascade_count = 0
 	GameManager.start_cascade()
 
 	# Recolor pieces
@@ -1094,6 +1104,7 @@ func execute_ability_convert(positions: Array[Vector2i], new_type: int) -> void:
 	var new_groups: Array = match_finder.find_match_groups(grid)
 	if not new_groups.is_empty():
 		cascade_level += 1
+		_natural_cascade_count += 1
 		GameManager.increment_cascade()
 		await _process_match_groups(new_groups)
 	else:

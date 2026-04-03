@@ -7,6 +7,7 @@ const MAX_SFX_PLAYERS: int = 8
 var _sfx_players: Array[AudioStreamPlayer] = []
 var _music_player: AudioStreamPlayer = null
 var _sfx_cache: Dictionary = {}
+var _current_music_name: String = ""
 
 
 func _ready() -> void:
@@ -58,15 +59,19 @@ func _on_play_sfx(sfx_name: String) -> void:
 
 
 func _on_play_music(music_name: String) -> void:
+	if music_name == _current_music_name and _music_player.playing:
+		return  # Already playing this track
 	var path: String = MUSIC_PATH + music_name + ".ogg"
 	if ResourceLoader.exists(path):
 		var stream: AudioStream = load(path)
 		_music_player.stream = stream
 		_music_player.play()
+		_current_music_name = music_name
 
 
 func _on_stop_music() -> void:
 	_music_player.stop()
+	_current_music_name = ""
 
 
 func _load_sfx(sfx_name: String) -> AudioStream:

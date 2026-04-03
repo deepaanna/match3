@@ -71,10 +71,11 @@ func _populate() -> void:
 	_refresh_team_buttons()
 	_update_leader_skill()
 
-	# Disable start if player has no energy
+	# Disable start if player has no energy — offer refill options
 	if PlayerData.energy <= 0:
 		_start_button.disabled = true
 		_start_button.text = "No Energy"
+		_add_energy_options()
 	_start_button.pressed.connect(func() -> void: start_expedition.emit(_level_data.level_number))
 	_back_button.pressed.connect(func() -> void: popup_closed.emit())
 
@@ -148,6 +149,41 @@ func _get_goal_description() -> String:
 				parts.append("score %d" % params["score"])
 			return "Goals: " + ", ".join(parts)
 	return ""
+
+
+# === MINIMAL MONETIZATION v1.0 ===
+
+func _add_energy_options() -> void:
+	## When player has no energy, add ad and shop buttons below the start button.
+	var container := VBoxContainer.new()
+	container.add_theme_constant_override("separation", 6)
+
+	var ad_btn := Button.new()
+	ad_btn.text = "Watch Ad for +1 Energy"
+	ad_btn.custom_minimum_size = Vector2(220, 38)
+	ad_btn.add_theme_font_size_override("font_size", 13)
+	ad_btn.pressed.connect(func() -> void:
+		EventBus.rewarded_ad_requested.emit("free_energy")
+		# Re-check energy after ad callback
+		if PlayerData.energy > 0:
+			_start_button.disabled = false
+			_start_button.text = "Start Expedition"
+			container.queue_free()
+	)
+	container.add_child(ad_btn)
+
+	var shop_btn := Button.new()
+	shop_btn.text = "Visit Shop"
+	shop_btn.custom_minimum_size = Vector2(220, 38)
+	shop_btn.add_theme_font_size_override("font_size", 13)
+	shop_btn.pressed.connect(func() -> void:
+		popup_closed.emit()
+		ShopSystem.open_shop()
+	)
+	container.add_child(shop_btn)
+
+	# Insert after the start button's parent
+	_start_button.get_parent().add_child(container)
 
 
 func _open_team_selector(slot: int) -> void:

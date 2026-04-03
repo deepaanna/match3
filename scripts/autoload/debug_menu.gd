@@ -16,6 +16,7 @@ const SCENES: Dictionary = {
 	"Investigation": "res://scenes/investigation_screen.tscn",
 	"Field Guide": "res://scenes/field_guide_screen.tscn",
 	"Trail Camera": "res://scenes/trail_camera_screen.tscn",
+	"Shop": "res://scenes/ui/shop_screen.tscn",
 }
 
 
@@ -113,6 +114,7 @@ func _build_ui() -> void:
 
 	# --- Sections ---
 	_build_currencies_section(vbox)
+	_build_testing_section(vbox)
 	_build_energy_section(vbox)
 	_build_progression_section(vbox)
 	_build_collection_section(vbox)
@@ -231,6 +233,19 @@ func _add_spin_row(parent: Control, label_text: String, value: int, callback: Ca
 
 
 # ==================== Sections ====================
+
+func _build_testing_section(parent: Control) -> void:
+	var s := _add_section(parent, "Testing Build")
+	_add_label(s, "Energy bypass: %s" % ("ON" if GameManager.is_testing_build else "OFF"),
+		Color(0.4, 1.0, 0.4) if GameManager.is_testing_build else Color(1.0, 0.4, 0.4))
+	var r1 := _make_row(s)
+	_row_btn(r1, "Toggle Testing Build", _cmd_toggle_testing)
+
+
+func _cmd_toggle_testing() -> void:
+	GameManager.is_testing_build = not GameManager.is_testing_build
+	_rebuild()
+
 
 func _build_currencies_section(parent: Control) -> void:
 	var s := _add_section(parent, "Currencies")
