@@ -294,7 +294,7 @@ func has_obstacle(col: int, row: int) -> bool:
 func damage_obstacle(col: int, row: int) -> void:
 	if not has_obstacle(col, row):
 		return
-	obstacle_hp[col][row] -= 1
+	obstacle_hp[col][row] = max(obstacle_hp[col][row] - 1, 0)
 	if obstacle_hp[col][row] <= 0:
 		var obs_type: int = obstacle_grid[col][row]
 		obstacle_grid[col][row] = LevelData.ObstacleType.NONE
@@ -500,6 +500,11 @@ func _on_swap_requested(from_col: int, from_row: int, to_col: int, to_row: int) 
 	_natural_cascade_count = 0
 	GameManager.start_cascade()
 	await _do_swap(from_col, from_row, to_col, to_row)
+
+	# Re-validate: game may have ended during the swap animation
+	if GameManager.state != GameManager.GameState.PLAYING:
+		state = BoardState.IDLE
+		return
 
 	state = BoardState.CHECKING
 	var groups: Array = match_finder.find_match_groups(grid)
@@ -1031,12 +1036,12 @@ func get_area_positions(center_col: int, center_row: int, radius: int) -> Array[
 	return positions
 
 
-func get_random_positions_of_type(exclude_type: int, count: int, _target_type: int) -> Array[Vector2i]:
+func get_random_positions_of_type(_exclude_type: int, count: int, target_type: int) -> Array[Vector2i]:
 	## Get 'count' random positions that are NOT the target_type (for conversion)
 	var candidates: Array[Vector2i] = []
 	for col in range(GameConfig.GRID_COLS):
 		for row in range(GameConfig.GRID_ROWS):
-			if grid[col][row] != PieceData.PieceType.NONE and grid[col][row] != _target_type:
+			if grid[col][row] != PieceData.PieceType.NONE and grid[col][row] != target_type:
 				candidates.append(Vector2i(col, row))
 	candidates.shuffle()
 	var result: Array[Vector2i] = []

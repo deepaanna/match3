@@ -104,4 +104,3 @@ func _activate_extra_moves(power: int) -> void:
 
 func _activate_shield() -> void:
 	GameManager.activate_shield()
-	EventBus.shield_activated.emit()

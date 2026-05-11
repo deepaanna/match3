@@ -13,7 +13,7 @@ var _shield_active: bool = false
 var _leader_skill_system: Node = null
 var last_reward_fragments: int = 0
 var last_reward_coins: int = 0
-var is_testing_build: bool = true  # Set false for production; bypasses energy cost
+var is_testing_build: bool = false  # Set true only during development; bypasses energy cost
 
 # Goal tracking
 var _goals: Dictionary = {}  # goal_id -> {current, target}
@@ -156,9 +156,10 @@ func add_score(points: int) -> void:
 
 	# Track score sub-goal for MIXED levels
 	if _goals.has("score"):
+		var prev: int = _goals["score"]["current"]
 		_goals["score"]["current"] = score
 		EventBus.goal_progress_updated.emit("score", score, _goals["score"]["target"])
-		if score >= _goals["score"]["target"]:
+		if prev < _goals["score"]["target"] and score >= _goals["score"]["target"]:
 			EventBus.goal_completed.emit("score")
 		_check_all_goals()
 
@@ -178,6 +179,7 @@ func grant_extra_moves(amount: int) -> void:
 
 func activate_shield() -> void:
 	_shield_active = true
+	EventBus.shield_activated.emit()
 
 
 func start_cascade() -> void:
@@ -261,6 +263,7 @@ func _on_resume_pressed() -> void:
 
 
 func _on_quit_pressed() -> void:
+	EventBus.shuffle_confirmed.emit()  # Unblock any pending board await
 	state = GameState.IDLE
 	get_tree().paused = false
 	SceneManager.change_scene("res://scenes/home_screen.tscn")
@@ -274,6 +277,7 @@ func _on_replay_pressed() -> void:
 
 
 func _on_home_pressed() -> void:
+	EventBus.shuffle_confirmed.emit()  # Unblock any pending board await
 	state = GameState.IDLE
 	SceneManager.change_scene("res://scenes/home_screen.tscn")
 
@@ -309,9 +313,9 @@ func _on_pieces_collected(piece_type: int, count: int) -> void:
 		return
 	if not current_level_data:
 		return
-	# Only track if collecting the target type
+	# Track if no type filter set, or piece matches the target type
 	var params: Dictionary = current_level_data.goal_params
-	if params.has("type") and piece_type == params["type"]:
+	if not params.has("type") or piece_type == params["type"]:
 		_advance_goal("collect", count)
 
 

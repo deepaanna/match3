@@ -81,8 +81,12 @@ func use_energy() -> bool:
 	if energy <= 0:
 		EventBus.energy_empty.emit()
 		return false
+	var was_full: bool = energy >= MAX_ENERGY
 	energy -= 1
-	last_energy_time = Time.get_unix_time_from_system()
+	# Only reset the regen timer when spending from full; otherwise preserve
+	# the partial progress already accumulated toward the next heart.
+	if was_full:
+		last_energy_time = Time.get_unix_time_from_system()
 	EventBus.energy_changed.emit(energy)
 	save_data()
 	return true

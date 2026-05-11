@@ -81,6 +81,8 @@ func _ready() -> void:
 	EventBus.shuffle_used.connect(_on_shuffle_used)
 	EventBus.vfx_request.connect(_on_vfx_request)
 	EventBus.persistent_booster_created.connect(_on_persistent_booster_created)
+	EventBus.shield_activated.connect(_on_shield_activated)
+	EventBus.swap_completed.connect(_on_swap_completed_ui)
 
 	# Initialize labels
 	level_label.text = "Level %d" % GameManager.current_level
@@ -415,6 +417,14 @@ func _on_area_cleared(center_col: int, center_row: int, radius: int) -> void:
 	t.tween_property(rect, "size", rect.size + Vector2(8, 8), 0.5)
 	t.set_parallel(false)
 	t.tween_callback(rect.queue_free)
+
+
+func _on_shield_activated() -> void:
+	moves_label.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0))
+
+
+func _on_swap_completed_ui() -> void:
+	moves_label.remove_theme_color_override("font_color")
 
 
 func _on_board_settled() -> void:
